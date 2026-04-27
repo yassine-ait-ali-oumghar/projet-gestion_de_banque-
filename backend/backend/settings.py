@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Banque',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,10 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+    BASE_DIR / 'Banque' / 'templates',
+    BASE_DIR / 'products' / 'templates',
+],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,3 +120,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]

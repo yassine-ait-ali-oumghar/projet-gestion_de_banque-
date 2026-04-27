@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponse
+from django.shortcuts import render
 
 def home(request):
-    return HttpResponse("Bienvenue dans l'application Banque")
+    return render(request, 'Banque/home.html')
