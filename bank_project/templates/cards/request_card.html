@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Nouvelle Carte | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <h2 class="fw-bold text-white mb-4"><i class="bi bi-credit-card-2-front me-2 text-gold"></i>Demander une Carte Bancaire</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card nova-card p-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="card-chip mx-auto mb-3" style="width:60px;height:45px;border-radius:8px;"></div>
+                            <p class="text-secondary">Sélectionnez le compte auquel associer votre nouvelle carte.</p>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="account" class="form-label text-secondary">Compte</label>
+                                <select name="account" id="account" class="form-select nova-input" required>
+                                    {% for acc in accounts %}
+                                    <option value="{{ acc.id }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
+                                <i class="bi bi-credit-card me-2"></i>Demander la Carte
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

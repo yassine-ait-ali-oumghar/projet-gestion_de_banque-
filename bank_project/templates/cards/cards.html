@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Mes Cartes | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h2 class="fw-bold text-white mb-0"><i class="bi bi-credit-card me-2"></i>Mes Cartes Bancaires</h2>
+            <a href="{% url 'request_card' %}" class="btn btn-warning rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-lg me-1"></i>Nouvelle Carte
+            </a>
+        </div>
+        <div class="row g-4">
+            {% for card in cards %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card p-4 bank-card-visual">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="card-chip"></div>
+                            <i class="bi bi-wifi fs-5 text-gold" style="transform: rotate(90deg);"></i>
+                        </div>
+                        <span class="badge {% if card.status == 'active' %}bg-success{% else %}bg-danger{% endif %} rounded-pill">{{ card.status }}</span>
+                    </div>
+                    <h5 class="text-white fw-bold font-monospace mb-3 mt-2" style="letter-spacing:0.15em;">
+                        {{ card.card_number|truncatechars:4 }} •••• •••• {{ card.card_number|slice:"-4:" }}
+                    </h5>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <small class="text-secondary d-block" style="font-size:0.7rem;">EXPIRE</small>
+                            <span class="text-white" style="font-size:0.9rem;">{{ card.expiration_date|date:"m/Y" }}</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block" style="font-size:0.7rem;">PLAFOND</small>
+                            <span class="text-gold fw-bold" style="font-size:0.9rem;">{{ card.plafond|floatformat:0 }} MAD</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block" style="font-size:0.7rem;">COMPTE</small>
+                            <span class="text-white" style="font-size:0.8rem;">{{ card.account.account_number|slice:"-6:" }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'toggle_card' card.id %}" class="btn btn-sm {% if card.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %} rounded-pill w-100">
+                        <i class="bi bi-{% if card.status == 'active' %}pause-circle{% else %}play-circle{% endif %} me-1"></i>
+                        {% if card.status == 'active' %}Désactiver{% else %}Activer{% endif %}
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card nova-card p-5 text-center empty-state">
+                    <i class="bi bi-credit-card display-1 text-secondary mb-3"></i>
+                    <h5 class="text-secondary">Aucune carte bancaire</h5>
+                    <p class="text-secondary">Demandez une carte pour l'un de vos comptes.</p>
+                    <a href="{% url 'request_card' %}" class="btn btn-warning rounded-pill px-4 mt-2">Demander une carte</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

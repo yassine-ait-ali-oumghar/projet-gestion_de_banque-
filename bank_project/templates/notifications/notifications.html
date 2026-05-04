@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Notifications | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <h2 class="fw-bold text-white mb-4"><i class="bi bi-bell me-2"></i>Notifications</h2>
+        <div class="row g-3">
+            {% for notif in notifications %}
+            <div class="col-12 notif-item">
+                <div class="card nova-card p-3 {% if not notif.is_read %}notif-card-unread{% else %}notif-card-read{% endif %}">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="flex-shrink-0">
+                            {% if notif.type == 'confirm_transaction' %}
+                            <div class="feature-icon" style="width:42px;height:42px;background:var(--nova-emerald-soft);color:var(--nova-emerald);font-size:1.1rem;border-radius:12px;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            {% elif notif.type == 'login_alert' %}
+                            <div class="feature-icon" style="width:42px;height:42px;background:var(--nova-gold-soft);color:var(--nova-gold);font-size:1.1rem;border-radius:12px;">
+                                <i class="bi bi-shield-exclamation"></i>
+                            </div>
+                            {% elif notif.type == 'welcome' %}
+                            <div class="feature-icon" style="width:42px;height:42px;background:var(--nova-sapphire-soft);color:var(--nova-sapphire);font-size:1.1rem;border-radius:12px;">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                            {% elif notif.type == 'account_created' %}
+                            <div class="feature-icon" style="width:42px;height:42px;background:var(--nova-gold-soft);color:var(--nova-gold);font-size:1.1rem;border-radius:12px;">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            {% else %}
+                            <div class="feature-icon" style="width:42px;height:42px;background:var(--nova-sapphire-soft);color:var(--nova-sapphire);font-size:1.1rem;border-radius:12px;">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="text-white mb-1" style="font-size:0.92rem;">{{ notif.message }}</p>
+                            <small class="text-secondary"><i class="bi bi-clock me-1"></i>{{ notif.created_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        {% if not notif.is_read %}
+                        <span class="badge bg-warning text-dark rounded-pill" style="font-size:0.65rem;">Nouveau</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card nova-card p-5 text-center empty-state">
+                    <i class="bi bi-bell-slash display-1 text-secondary mb-3"></i>
+                    <h5 class="text-secondary">Aucune notification</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

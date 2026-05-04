@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Retrait | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <h2 class="fw-bold text-white mb-4"><i class="bi bi-dash-circle me-2" style="color:var(--nova-ruby);"></i>Effectuer un Retrait</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card nova-card p-4">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="account" class="form-label text-secondary">Compte</label>
+                                <select name="account" id="account" class="form-select nova-input" required>
+                                    {% for acc in accounts %}
+                                    <option value="{{ acc.id }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="amount" class="form-label text-secondary">Montant (MAD)</label>
+                                <input type="number" step="0.01" min="0.01" name="amount" id="amount" class="form-control nova-input" placeholder="0.00" required>
+                            </div>
+                            <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-ruby);color:#fff;">
+                                <i class="bi bi-check-circle me-2"></i>Retirer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

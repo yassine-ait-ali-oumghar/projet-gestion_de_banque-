@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Mes Comptes | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h2 class="fw-bold text-white mb-0"><i class="bi bi-wallet2 me-2"></i>Mes Comptes Bancaires</h2>
+            <a href="{% url 'create_account' %}" class="btn btn-warning rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-lg me-1"></i>Nouveau Compte
+            </a>
+        </div>
+
+        {% if accounts %}
+        <!-- Total Balance Banner -->
+        <div class="greeting-banner mb-4 d-flex align-items-center gap-3">
+            <i class="bi bi-pie-chart-fill fs-3 text-gold"></i>
+            <div>
+                <p class="text-secondary mb-0" style="font-size:0.8rem;">Solde Total</p>
+                <h4 class="fw-bold text-gold mb-0">{{ total_balance|floatformat:2 }} MAD</h4>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            {% for account in accounts %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card p-4 account-card-gradient">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-warning text-dark rounded-pill px-3">{{ account.type }}</span>
+                        <small class="text-secondary">{{ account.date_creation|date:"d/m/Y" }}</small>
+                    </div>
+                    <h6 class="text-secondary mb-1" style="font-size:0.85rem;">N° {{ account.account_number }}</h6>
+                    <h3 class="fw-bolder text-gold mb-3">{{ account.balance|floatformat:2 }} <small class="fs-6">MAD</small></h3>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'deposit' %}" class="btn btn-sm btn-outline-success rounded-pill px-3 flex-fill">
+                            <i class="bi bi-plus me-1"></i>Dépôt
+                        </a>
+                        <a href="{% url 'withdraw' %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 flex-fill">
+                            <i class="bi bi-dash me-1"></i>Retrait
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card nova-card p-5 text-center empty-state">
+                    <i class="bi bi-inbox display-1 text-secondary mb-3"></i>
+                    <h5 class="text-secondary">Aucun compte bancaire</h5>
+                    <a href="{% url 'create_account' %}" class="btn btn-warning rounded-pill px-4 mt-3">Créer mon premier compte</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

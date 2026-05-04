@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}NovaBank | Votre Univers Financier{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<header class="hero d-flex align-items-center justify-content-center text-center">
+    <canvas id="hero-particles"></canvas>
+    <div class="container hero-content">
+        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 mb-3 hero-animate">
+            <i class="bi bi-stars me-1"></i> Bienvenue chez NovaBank
+        </span>
+        <h1 class="display-2 fw-bolder mb-4 hero-animate">Un compte.<br><span class="text-gold">Des possibilités infinies.</span></h1>
+        <p class="lead text-secondary mx-auto mb-5 hero-animate" style="max-width: 600px;">
+            La banque intelligente conçue pour le monde moderne. Épargnez, investissez et dépensez sans friction.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap hero-animate">
+            <a href="{% url 'register' %}" class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold hero-btn">
+                <i class="bi bi-rocket-takeoff me-2"></i>Ouvrir un Compte
+            </a>
+            <a href="#features" class="btn btn-outline-light btn-lg rounded-pill px-5 py-3 fw-bold hero-btn">
+                En Savoir Plus <i class="bi bi-arrow-down ms-2"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Logo ticker -->
+<section class="bg-black py-4">
+    <div class="container">
+        <div class="ticker-strip">
+            <div class="ticker-track">
+                <span class="text-uppercase fw-bold text-secondary ls-wide">PayFlow</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Vertex</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Nordic</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Atlas</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Cipher</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Helix</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">PayFlow</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Vertex</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Nordic</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Atlas</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Cipher</span>
+                <span class="text-uppercase fw-bold text-secondary ls-wide">Helix</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-black section-glow">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal">
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 mb-3">FONCTIONNALITÉS</span>
+            <h2 class="display-4 fw-bold text-white">Tout ce dont vous avez besoin.</h2>
+        </div>
+
+        <div class="row g-4 feature-block">
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-shield-lock"></i></div>
+                        <h5 class="card-title fw-bold">Sécurité Avancée</h5>
+                        <p class="card-text text-secondary">Protection CSRF, hashage des mots de passe et validation des entrées utilisateur.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-speedometer2"></i></div>
+                        <h5 class="card-title fw-bold">Tableau de Bord</h5>
+                        <p class="card-text text-secondary">Visualisez votre solde total, vos dernières transactions et vos comptes en un coup d'œil.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-arrow-left-right"></i></div>
+                        <h5 class="card-title fw-bold">Virements Instantanés</h5>
+                        <p class="card-text text-secondary">Dépôts, retraits et virements internes ou externes en quelques clics.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-clock-history"></i></div>
+                        <h5 class="card-title fw-bold">Historique Complet</h5>
+                        <p class="card-text text-secondary">Consultez et filtrez l'ensemble de vos opérations financières par date et par type.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-bell"></i></div>
+                        <h5 class="card-title fw-bold">Notifications</h5>
+                        <p class="card-text text-secondary">Recevez des alertes en temps réel pour chaque transaction et événement important.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card nova-card h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3"><i class="bi bi-credit-card-2-front"></i></div>
+                        <h5 class="card-title fw-bold">Cartes Bancaires</h5>
+                        <p class="card-text text-secondary">Gérez vos cartes virtuelles, activez ou désactivez-les instantanément.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="py-5 bg-black section-glow">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal">
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 mb-3">COMMENT ÇA MARCHE</span>
+            <h2 class="display-4 fw-bold text-white">En 3 étapes simples.</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 how-it-works-step">
+                <div class="step-number">1</div>
+                <h5 class="fw-bold text-white mb-2">Créez votre compte</h5>
+                <p class="text-secondary">Inscrivez-vous en quelques secondes avec votre email et commencez immédiatement.</p>
+            </div>
+            <div class="col-md-4 how-it-works-step">
+                <div class="step-number">2</div>
+                <h5 class="fw-bold text-white mb-2">Alimentez vos comptes</h5>
+                <p class="text-secondary">Effectuez des dépôts et gérez vos comptes bancaires (courant, épargne) en un clic.</p>
+            </div>
+            <div class="col-md-4 how-it-works-step">
+                <div class="step-number">3</div>
+                <h5 class="fw-bold text-white mb-2">Gérez vos finances</h5>
+                <p class="text-secondary">Virements, cartes bancaires, notifications — tout depuis votre tableau de bord.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section id="stats" class="nova-stats-section py-5 section-glow">
+    <div class="container py-5 text-center">
+        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 mb-3 reveal">EN CHIFFRES</span>
+        <h2 class="display-4 fw-bold text-white mb-5 reveal">La confiance en chiffres.</h2>
+        <div class="row g-4 stat-block">
+            <div class="col-md-4">
+                <div class="card nova-card text-center p-4">
+                    <h2 class="display-3 fw-bolder text-gold stat-number" data-value="2.4">0</h2>
+                    <p class="text-secondary mb-0">Milliards d'actifs gérés</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card nova-card text-center p-4">
+                    <h2 class="display-3 fw-bolder text-gold stat-number" data-value="140">0</h2>
+                    <p class="text-secondary mb-0">Milliers de clients actifs</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card nova-card text-center p-4">
+                    <h2 class="display-3 fw-bolder text-gold stat-number" data-value="99.97">0</h2>
+                    <p class="text-secondary mb-0">% Disponibilité SLA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="nova-cta text-center">
+    <div class="container">
+        <div class="cta-line mx-auto mb-4"></div>
+        <h2 class="display-3 fw-bolder text-white mb-3 reveal">Votre avenir commence ici.</h2>
+        <p class="lead text-secondary mb-5 mx-auto reveal" style="max-width: 500px;">
+            Rejoignez 140 000+ clients qui sont passés à la banque intelligente.
+        </p>
+        <a href="{% url 'register' %}" class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold hero-btn reveal">
+            <i class="bi bi-rocket-takeoff me-2"></i>Créer Votre Compte
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Nouveau Compte | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <h2 class="fw-bold text-white mb-4"><i class="bi bi-plus-circle me-2 text-gold"></i>Créer un Compte Bancaire</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card nova-card p-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="feature-icon mx-auto" style="width:64px;height:64px;font-size:1.8rem;">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            <p class="text-secondary mt-3">Choisissez le type de compte à ouvrir.</p>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="type" class="form-label text-secondary">Type de Compte</label>
+                                <select name="type" id="type" class="form-select nova-input">
+                                    <option value="Courant">Compte Courant</option>
+                                    <option value="Épargne">Compte Épargne</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
+                                <i class="bi bi-check-circle me-2"></i>Créer le Compte
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

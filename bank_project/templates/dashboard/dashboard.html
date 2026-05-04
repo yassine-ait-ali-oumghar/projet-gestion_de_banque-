@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de Bord | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <!-- Greeting -->
+        <div class="greeting-banner mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold text-white mb-1">{{ greeting }}, {{ user.first_name|default:user.username }} 👋</h2>
+                <p class="text-secondary mb-0">Voici un aperçu de votre activité financière.</p>
+            </div>
+            <a href="{% url 'create_account' %}" class="btn btn-warning rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-lg me-1"></i>Nouveau Compte
+            </a>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card nova-card summary-card gold p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="feature-icon"><i class="bi bi-wallet2"></i></div>
+                        <div>
+                            <p class="text-secondary mb-0" style="font-size:0.8rem;">Solde Total</p>
+                            <h4 class="fw-bold text-gold mb-0">{{ total_balance|floatformat:2 }} <small
+                                    class="fs-6">MAD</small></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card nova-card summary-card emerald p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="feature-icon"
+                            style="background:var(--nova-emerald-soft);color:var(--nova-emerald);"><i
+                                class="bi bi-bank"></i></div>
+                        <div>
+                            <p class="text-secondary mb-0" style="font-size:0.8rem;">Comptes Actifs</p>
+                            <h4 class="fw-bold text-white mb-0">{{ num_accounts }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card nova-card summary-card sapphire p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="feature-icon"
+                            style="background:var(--nova-sapphire-soft);color:var(--nova-sapphire);"><i
+                                class="bi bi-credit-card"></i></div>
+                        <div>
+                            <p class="text-secondary mb-0" style="font-size:0.8rem;">Cartes Actives</p>
+                            <h4 class="fw-bold text-white mb-0">{{ card_count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card nova-card summary-card ruby p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="feature-icon" style="background:var(--nova-ruby-soft);color:var(--nova-ruby);"><i
+                                class="bi bi-bell"></i></div>
+                        <div>
+                            <p class="text-secondary mb-0" style="font-size:0.8rem;">Notifications</p>
+                            <h4 class="fw-bold text-white mb-0">{{ unread_notifications }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Chart -->
+            <div class="col-lg-8">
+                <div class="card nova-card p-4">
+                    <h6 class="fw-bold text-white mb-3"><i class="bi bi-bar-chart-line me-2 text-gold"></i>Activité des
+                        6 derniers mois</h6>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                        {{ chart_labels|json_script:"chart-labels" }}
+                        {{ chart_deposits|json_script:"chart-deposits" }}
+                        {{ chart_withdrawals|json_script:"chart-withdrawals" }}
+                    </div>
+                </div>
+            </div>
+            <!-- Quick Actions -->
+            <div class="col-lg-4">
+                <div class="card nova-card p-4 h-100">
+                    <h6 class="fw-bold text-white mb-3"><i class="bi bi-lightning me-2 text-gold"></i>Actions Rapides
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'deposit' %}"
+                            class="card nova-card p-3 text-decoration-none quick-action d-flex align-items-center gap-3">
+                            <i class="bi bi-plus-circle fs-4 text-emerald"></i>
+                            <span class="text-white fw-semibold">Dépôt</span>
+                        </a>
+                        <a href="{% url 'withdraw' %}"
+                            class="card nova-card p-3 text-decoration-none quick-action d-flex align-items-center gap-3">
+                            <i class="bi bi-dash-circle fs-4" style="color:var(--nova-ruby);"></i>
+                            <span class="text-white fw-semibold">Retrait</span>
+                        </a>
+                        <a href="{% url 'transfer' %}"
+                            class="card nova-card p-3 text-decoration-none quick-action d-flex align-items-center gap-3">
+                            <i class="bi bi-arrow-left-right fs-4" style="color:var(--nova-sapphire);"></i>
+                            <span class="text-white fw-semibold">Virement</span>
+                        </a>
+                        <a href="{% url 'transactions' %}"
+                            class="card nova-card p-3 text-decoration-none quick-action d-flex align-items-center gap-3">
+                            <i class="bi bi-clock-history fs-4 text-gold"></i>
+                            <span class="text-white fw-semibold">Historique</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <h6 class="fw-bold text-white mb-3"><i class="bi bi-clock-history me-2 text-gold"></i>Dernières Transactions
+        </h6>
+        <div class="card nova-card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 nova-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in recent_transactions %}
+                            <tr>
+                                <td>{{ tx.date|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if tx.type == 'deposit' %}
+                                    <span class="badge bg-success rounded-pill">Dépôt</span>
+                                    {% elif tx.type == 'withdrawal' %}
+                                    <span class="badge bg-danger rounded-pill">Retrait</span>
+                                    {% else %}
+                                    <span class="badge bg-info rounded-pill">Virement</span>
+                                    {% endif %}
+                                </td>
+                                <td
+                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' %}amount-negative{% else %}amount-transfer{% endif %}">
+                                    {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' %}-{% endif %}{{
+                                    tx.amount|floatformat:2 }} MAD
+                                </td>
+                                <td><span class="badge bg-success rounded-pill">{{ tx.status }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-secondary py-4">
+                                    <i class="bi bi-inbox fs-4 d-block mb-2"></i>Aucune transaction récente
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    var ctx = document.getElementById('activityChart');
+    if (ctx) {
+        var labelsData = JSON.parse(document.getElementById('chart-labels').textContent);
+        var depositsData = JSON.parse(document.getElementById('chart-deposits').textContent);
+        var withdrawalsData = JSON.parse(document.getElementById('chart-withdrawals').textContent);
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelsData,
+                datasets: [
+                    {
+                        label: 'Dépôts',
+                        data: depositsData,
+                        backgroundColor: 'rgba(52, 211, 153, 0.6)',
+                        borderColor: 'rgba(52, 211, 153, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Retraits',
+                        data: withdrawalsData,
+                        backgroundColor: 'rgba(248, 113, 113, 0.6)',
+                        borderColor: 'rgba(248, 113, 113, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a1a1aa',
+                            font: { family: 'Inter' }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#71717a' },
+                        grid: { color: 'rgba(255,255,255,0.03)' }
+                    },
+                    y: {
+                        ticks: { color: '#71717a' },
+                        grid: { color: 'rgba(255,255,255,0.03)' }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

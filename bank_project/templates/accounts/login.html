@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Connexion | NovaBank{% endblock %}
+{% block content %}
+<div class="auth-page d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-5">
+            <div class="col-lg-5 auth-illustration text-center">
+                <div class="illustration-wrapper p-4 rounded-4" style="background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,0,0,0.4)); border: 1px solid var(--nova-card-border); box-shadow: var(--nova-shadow);">
+                    <i class="bi bi-shield-lock" style="font-size: 6rem; color: var(--nova-gold); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(212,175,55,0.4));"></i>
+                    <h3 class="fw-bold text-white mt-4">Sécurité maximale</h3>
+                    <p class="text-secondary mb-0">Vos données sont protégées par un chiffrement de pointe et une authentification sécurisée.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-5">
+                <div class="card nova-card p-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-bank2 display-4 text-gold"></i>
+                            <h3 class="fw-bold mt-2">Connexion</h3>
+                            <p class="text-secondary">Accédez à votre espace bancaire</p>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="username" class="form-label text-secondary">Nom d'utilisateur</label>
+                                <input type="text" name="username" id="username" class="form-control nova-input" required autofocus>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label text-secondary">Mot de passe</label>
+                                <div class="password-wrapper">
+                                    <input type="password" name="password" id="password" class="form-control nova-input" required>
+                                    <button type="button" class="password-toggle"><i class="bi bi-eye"></i></button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
+                            </button>
+                        </form>
+                        <p class="text-center text-secondary mt-4 mb-0">
+                            Pas encore de compte ? <a href="{% url 'register' %}" class="text-gold fw-bold">S'inscrire</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
