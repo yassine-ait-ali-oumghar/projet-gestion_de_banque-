@@ -36,3 +36,6 @@ The environment is cleanly organized. Follow these exact steps to start the web 
    python manage.py runserver
    ```
 5. **Open your browser** and navigate to [http://localhost:8000/](http://localhost:8000/). You will see the natively rendered home landing page featuring scroll animations running under plain HTML and Bootstrap!
+    'username': 'admin',
+    'email': 'admin@novabank.local',
+    'password': 'NovaBank-Admin-2026!',
