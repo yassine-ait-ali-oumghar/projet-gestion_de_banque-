@@ -1,41 +1,244 @@
-# NovaBank - Django Banking Application
+# 🏦 NovaBank — Application de Gestion Bancaire
 
-This project implements the specifications outlined in the technical document `CAHIER DE CHARGE (PYTHON).docx` using purely **Python**, **Django**, and **Bootstrap (HTML/CSS/JS)**. The unauthorized React frontend has been permanently deleted, and the UI layout and aesthetic features have been natively migrated to Django `templates/` and `static/`.
+> Application web de gestion bancaire complète développée avec **Django** et **Bootstrap 5**, permettant aux utilisateurs de gérer leurs comptes, effectuer des transactions et suivre leurs finances en temps réel.
 
-## Folder Structure Mapping
+---
 
-The architecture perfectly mimics the mandated design:
+## 🛠️ Technologies Utilisées
 
-```text
-bank_project/
-  |-- accounts/         # Authentication and user profiles
-  |-- banking/          # Core transaction and account models
-  |-- dashboard/        # Views tracking internal metrics via Chart.js
-  |-- notifications/    # System alerts
-  |-- cards/            # Credit cards linkage algorithms
-  |-- templates/        # Natively integrated HTML (Bootstrap format)
-  |-- static/           # Core layout styling and Vanilla JS GSAP Animations
+### Backend
+
+| Technologie       | Version   | Rôle                                      |
+|-------------------|-----------|--------------------------------------------|
+| **Python**        | 3.x       | Langage de programmation principal          |
+| **Django**        | 6.0.4     | Framework web (MTV : Model-Template-View)   |
+| **MySQL**         | —         | Base de données relationnelle               |
+| **ReportLab**     | —         | Génération de fichiers PDF                  |
+| **xhtml2pdf**     | —         | Conversion HTML → PDF (rapports)            |
+| **Pillow**        | —         | Traitement d'images (cachet officiel, etc.) |
+| **python-dateutil** | —       | Manipulation avancée des dates              |
+
+### Frontend
+
+| Technologie           | Version   | Rôle                                        |
+|-----------------------|-----------|----------------------------------------------|
+| **HTML5**             | —         | Structure des pages (Django Templates)        |
+| **CSS3**              | —         | Styles personnalisés (`style.css`)            |
+| **JavaScript**        | ES6+      | Logique côté client (Vanilla JS)              |
+| **Bootstrap**         | 5.3.3     | Framework CSS responsive (via CDN)            |
+| **Bootstrap Icons**   | 1.11.3    | Icônes vectorielles (via CDN)                 |
+| **GSAP**              | 3.12.2    | Animations de scroll (ScrollTrigger)          |
+| **Chart.js**          | —         | Graphiques interactifs (Dashboard)            |
+| **Google Fonts**      | Inter     | Typographie moderne                           |
+
+### Base de Données
+
+- **MySQL** — Base de données principale (port `3306`)
+- **SQLite3** — Alternative disponible (commentée dans `settings.py`)
+
+---
+
+## 📁 Architecture du Projet
+
+```
+projet-gestion_de_banque-/
+│
+├── bank_project/                    # Répertoire principal Django
+│   │
+│   ├── bank_project/                # Configuration du projet
+│   │   ├── settings.py              # Paramètres Django (DB, apps, middleware)
+│   │   ├── urls.py                  # Routes URL principales
+│   │   └── wsgi.py                  # Point d'entrée WSGI
+│   │
+│   ├── accounts/                    # 👤 App : Authentification & Profils
+│   │   ├── models.py                # Modèle Profile (extension de User)
+│   │   ├── views.py                 # Inscription, connexion, profil
+│   │   ├── forms.py                 # Formulaires personnalisés
+│   │   ├── backends.py              # Backend auth (email ou username)
+│   │   └── management/              # Commandes manage.py personnalisées
+│   │
+│   ├── banking/                     # 💰 App : Opérations Bancaires
+│   │   ├── models.py                # Modèles Account & Transaction
+│   │   └── views.py                 # Dépôt, retrait, virement, export PDF
+│   │
+│   ├── dashboard/                   # 📊 App : Tableau de Bord
+│   │   └── views.py                 # Métriques et graphiques Chart.js
+│   │
+│   ├── notifications/               # 🔔 App : Notifications
+│   │   ├── models.py                # Modèle Notification
+│   │   ├── context_processors.py    # Compteur de notifications non lues
+│   │   └── views.py                 # Affichage et gestion
+│   │
+│   ├── cards/                       # 💳 App : Cartes Bancaires
+│   │   ├── models.py                # Modèle Card (plafond, statut)
+│   │   └── views.py                 # Gestion des cartes
+│   │
+│   ├── administration/              # 🛡️ App : Panneau d'Administration
+│   │   └── views.py                 # Supervision système (staff only)
+│   │
+│   ├── templates/                   # 📄 Templates HTML (Django Templates)
+│   │   ├── base.html                # Layout principal (navbar, footer)
+│   │   ├── index.html               # Page d'accueil (landing page)
+│   │   ├── accounts/                # Templates auth (login, register)
+│   │   ├── banking/                 # Templates bancaires
+│   │   ├── dashboard/               # Templates tableau de bord
+│   │   ├── cards/                   # Templates cartes
+│   │   ├── notifications/           # Templates notifications
+│   │   ├── administration/          # Templates admin personnalisé
+│   │   └── admin/                   # Surcharge du Django Admin
+│   │
+│   ├── static/                      # 🎨 Fichiers Statiques
+│   │   ├── css/style.css            # Styles CSS personnalisés
+│   │   └── js/main.js               # JavaScript (thème, animations, particules)
+│   │
+│   ├── manage.py                    # Commande Django
+│   ├── requirements.txt             # Dépendances Python
+│   └── db.sqlite3                   # Base de données SQLite (dev)
+│
+├── CAHIER DE CHARGE (PYTHON).docx   # Cahier des charges du projet
+├── venv/                            # Environnement virtuel Python
+└── README.md                        # Ce fichier
 ```
 
-## How to Launch the Application
+---
 
-The environment is cleanly organized. Follow these exact steps to start the web application:
+## ✨ Fonctionnalités
 
-1. **Open your Terminal (Powershell / Command Prompt)**
-2. Navigate into the main Django project directory:
+### 👤 Gestion des Utilisateurs
+- Inscription et connexion (par **email** ou **nom d'utilisateur**)
+- Profil utilisateur avec informations personnelles (téléphone, adresse, date de naissance)
+- Backend d'authentification personnalisé (`EmailOrUsernameBackend`)
+- Commande `init_nova_admin` pour créer l'administrateur par défaut
+
+### 💰 Opérations Bancaires
+- **Création de comptes** bancaires (Courant, Épargne, etc.)
+- **Dépôt** d'argent sur un compte
+- **Retrait** avec vérification du solde
+- **Virement** entre comptes (même utilisateur ou vers un autre)
+- **Historique des transactions** avec filtrage par type
+- **Export PDF** des transactions (rapport avec cachet officiel)
+
+### 💳 Cartes Bancaires
+- Gestion des cartes liées aux comptes
+- Plafond de dépenses journalier
+- Suivi du statut (active / bloquée)
+
+### 🔔 Notifications
+- Notifications automatiques pour chaque opération
+- Compteur de notifications non lues (badge temps réel)
+- Types : `confirm_transaction`, `login_alert`, `account_created`
+
+### 📊 Tableau de Bord
+- Solde total et répartition par compte
+- Graphiques interactifs avec **Chart.js**
+- Métriques et statistiques utilisateur
+
+### 🛡️ Administration (Staff)
+- **Dashboard superviseur** : vue d'ensemble (utilisateurs, comptes, volumes)
+- **Gestion des utilisateurs** : recherche, activation/désactivation
+- **Gestion des comptes bancaires** : filtrage par statut, activation/désactivation
+- **Suivi des transactions** : filtrage par type, recherche par numéro de compte
+- Pagination sur toutes les listes
+- Accès au **Django Admin** natif pour les opérations CRUD
+
+### 🎨 Interface Utilisateur
+- Design responsive avec **Bootstrap 5**
+- **Mode sombre / clair** avec persistance (`localStorage`)
+- Animations de scroll avec **GSAP ScrollTrigger**
+- Particules animées sur la page d'accueil (Canvas)
+- Compteur animé pour les statistiques
+- Typographie moderne (**Inter** via Google Fonts)
+
+---
+
+## 🚀 Installation & Lancement
+
+### Prérequis
+- **Python 3.10+**
+- **MySQL** (ou utiliser SQLite3 en décommentant dans `settings.py`)
+- **pip** (gestionnaire de paquets Python)
+
+### Étapes
+
+1. **Cloner le projet**
    ```bash
-   cd "bank_project" bank_project
-   
+   git clone https://github.com/votre-repo/projet-gestion_de_banque-.git
+   cd projet-gestion_de_banque-
    ```
-3. To test the integrity of the system before running:
+
+2. **Créer et activer l'environnement virtuel**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate        # Windows
+   # source venv/bin/activate   # Linux / Mac
+   ```
+
+3. **Installer les dépendances**
+   ```bash
+   cd bank_project
+   pip install -r requirements.txt
+   ```
+
+4. **Configurer la base de données**
+
+   - **Option MySQL** : Créer une base de données `bank_project` dans MySQL
+   - **Option SQLite3** : Décommenter la configuration SQLite3 dans `settings.py` et commenter celle de MySQL
+
+5. **Appliquer les migrations**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Créer le compte administrateur**
+   ```bash
+   python manage.py init_nova_admin
+   ```
+   Ou il sera créé automatiquement si `DEBUG = True`.
+
+7. **Vérifier l'intégrité du système**
    ```bash
    python manage.py check
    ```
-4. Finally, **Start the server**:
+
+8. **Lancer le serveur**
    ```bash
    python manage.py runserver
    ```
-5. **Open your browser** and navigate to [http://localhost:8000/](http://localhost:8000/). You will see the natively rendered home landing page featuring scroll animations running under plain HTML and Bootstrap!
-    'username': 'admin',
-    'email': 'admin@novabank.local',
-    'password': 'NovaBank-Admin-2026!',
+
+9. **Ouvrir dans le navigateur** → [http://localhost:8000/](http://localhost:8000/)
+
+---
+
+## 🔑 Compte Administrateur par Défaut
+
+| Champ          | Valeur                     |
+|----------------|----------------------------|
+| **Username**   | `admin`                    |
+| **Email**      | `admin@novabank.local`     |
+| **Mot de passe** | `NovaBank-Admin-2026!`  |
+
+> ⚠️ **Ne jamais utiliser ces identifiants en production.** Changez le mot de passe immédiatement.
+
+---
+
+## 📦 Dépendances Python (`requirements.txt`)
+
+```
+django>=4.2
+python-dateutil
+reportlab
+xhtml2pdf
+pillow
+```
+
+---
+
+## 📄 Licence
+
+Projet académique — Développé dans le cadre du cahier des charges **"Gestion de Banque"** en Python/Django.
+
+---
+
+<p align="center">
+  <strong>NovaBank</strong> — La banque intelligente conçue pour le monde moderne 🚀
+</p>

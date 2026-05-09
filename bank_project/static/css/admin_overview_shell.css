@@ -1,0 +1,141 @@
+/* Enrobe le Django Admin pour coller aux couleurs / typo NovaBank (avec style.css et data-theme). */
+
+body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary);
+}
+
+body.login {
+    background: var(--bg-primary) !important;
+}
+
+.nova-da-site-title {
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+}
+
+.nova-da-site-title a {
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+}
+
+.nova-da-site-title a:hover {
+    color: var(--gold) !important;
+}
+
+.nova-da-home-link span {
+    color: var(--text-primary);
+}
+
+#header {
+    background: rgba(0, 0, 0, 0.92) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 0.85rem 1.25rem !important;
+}
+
+[data-theme="light"] #header {
+    background: rgba(255, 255, 255, 0.97) !important;
+}
+
+#container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1320px;
+}
+
+#container .main > .content,
+#content.flex,
+#content,
+.content {
+    background: transparent !important;
+}
+
+#user-tools a,
+#user-tools button:not(.theme-toggle):not(#novaDaThemeToggle) {
+    color: var(--text-secondary) !important;
+}
+
+#user-tools a:hover {
+    color: var(--gold) !important;
+}
+
+.nova-da-quicknav a {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none !important;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.nova-da-quicknav a:hover {
+    color: var(--text-primary);
+    background: rgba(245, 166, 35, 0.12);
+    border-color: rgba(245, 166, 35, 0.35);
+}
+
+/* Page d’accueil Django sur mesure */
+
+.nova-django-overview .overview-lead {
+    max-width: 52rem;
+    font-size: 0.95rem;
+}
+
+.nova-da-tile-row {
+    --bs-gutter-y: 1rem;
+}
+
+.nova-da-big-tile .card-body {
+    min-height: 6.5rem;
+}
+
+.nova-da-tile-arrow {
+    color: var(--gold);
+}
+
+.nova-da-tile:hover .nova-da-tile-arrow {
+    transform: translateX(4px);
+}
+
+.nova-da-tile-arrow {
+    transition: transform 0.2s ease;
+}
+
+/* Liste classique Django repliée */
+.nova-django-overview .module h2 {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.nova-django-overview .module table,
+.nova-django-overview .module th,
+.nova-django-overview .module td {
+    border-color: var(--border-color) !important;
+    color: var(--text-primary);
+}
+
+.nova-django-overview details summary::marker {
+    color: var(--gold);
+}
+
+.nova-django-overview .nova-da-tile:hover {
+    border-color: rgba(245, 166, 35, 0.35);
+}
+
+#content-related .module.nova-card {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1rem !important;
+    background: var(--bg-card);
+}
+
+#content-related .module h2,
+#content-related .module h3 {
+    color: var(--text-primary);
+}
+
+#content-related .actionlist a {
+    color: var(--gold) !important;
+}
