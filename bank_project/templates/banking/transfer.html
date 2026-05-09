@@ -20,7 +20,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="receiver" class="form-label text-secondary">N° Compte Destinataire</label>
-                                <input type="text" name="receiver" id="receiver" class="form-control nova-input" placeholder="Ex: NB1234567890" required>
+                                <input type="text" name="receiver" id="receiver" class="form-control nova-input" placeholder="Ex: NB1234567890" pattern="[A-Z]{2}[0-9]+" title="2 lettres majuscules suivies de chiffres" required>
                             </div>
                             <div class="mb-4">
                                 <label for="amount" class="form-label text-secondary">Montant (MAD)</label>

@@ -1,12 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 from .models import Account, Transaction
 from notifications.models import Notification
 from decimal import Decimal, InvalidOperation
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 import random
 import string
-
+from reportlab.lib.utils import ImageReader
+from django.conf import settings
+import os
+from datetime import datetime
+from io import BytesIO
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 def _generate_account_number():
     """Génère un numéro de compte unique."""
@@ -122,6 +132,13 @@ def transfer(request):
         sender_id = request.POST.get('sender')
         receiver_number = request.POST.get('receiver')
         amount_str = request.POST.get('amount')
+        
+        import re
+        account_pattern = re.compile(r'^[A-Z]{2}\d+$')
+        if not account_pattern.match(receiver_number):
+            messages.error(request, 'Format de compte invalide. Doit commencer par 2 lettres majuscules suivies de chiffres (ex: NB1234567890).')
+            return redirect('transfer')
+        
         try:
             amount = Decimal(amount_str).quantize(Decimal('0.01'))
             if amount <= 0:
@@ -186,3 +203,38 @@ def transactions_list(request):
         'transactions': transactions,
         'tx_type': tx_type,
     })
+
+
+@login_required
+def export_transactions_pdf(request):
+    """Exporte les transactions de l'utilisateur en PDF Premium avec HTML/CSS."""
+    user_accounts = Account.objects.filter(user=request.user)
+    transactions = Transaction.objects.filter(
+        Q(sender__in=user_accounts) |
+        Q(receiver__in=user_accounts)
+    ).order_by('-date')
+
+    total = sum(tx.amount for tx in transactions)
+    current_date = datetime.now().strftime("%d/%m/%Y %H:%M")
+    logo_path = os.path.join(settings.BASE_DIR, 'cachet_officiel_transparent.png')
+
+    context = {
+        'transactions': transactions,
+        'total': total,
+        'user_name': request.user.get_full_name() or request.user.username,
+        'current_date': current_date,
+        'logo_path': logo_path,
+    }
+
+    html = render_to_string('banking/report_pdf.html', context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="NovaBank_Report.pdf"'
+
+    buffer = BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=buffer)
+
+    if pisa_status.err:
+        return HttpResponse('Erreur lors de la génération du PDF', status=500)
+
+    response.write(buffer.getvalue())
+    return response

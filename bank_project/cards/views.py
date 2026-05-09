@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Card
-from banking.models import Account
+from banking.models import Account, Transaction
 from notifications.models import Notification
+from decimal import Decimal, InvalidOperation
 import random
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -65,3 +66,64 @@ def toggle_card(request, card_id):
     )
     messages.success(request, msg)
     return redirect('cards')
+
+
+@login_required
+def card_payment(request):
+    """Effectuer un paiement avec une carte bancaire."""
+    user_accounts = Account.objects.filter(user=request.user)
+    cards = Card.objects.filter(account__in=user_accounts, status='active').select_related('account')
+    
+    if request.method == 'POST':
+        card_id = request.POST.get('card')
+        amount_str = request.POST.get('amount')
+        description = request.POST.get('description', 'Paiement')
+        
+        try:
+            amount = Decimal(amount_str).quantize(Decimal('0.01'))
+            if amount <= 0:
+                raise InvalidOperation
+        except (InvalidOperation, TypeError, ValueError):
+            messages.error(request, 'Montant invalide.')
+            return redirect('card_payment')
+        
+        card = get_object_or_404(Card, id=card_id, account__in=user_accounts, status='active')
+        account = card.account
+        
+        today = date.today()
+        
+        if card.last_spending_date != today:
+            card.daily_spent = Decimal('0.00')
+            card.last_spending_date = today
+        
+        if (card.daily_spent + amount) > card.plafond:
+            messages.error(request, f'Limite quotidienne dépassée ! Plafond: {card.plafond} MAD, Dépensé aujourd\'hui: {card.daily_spent} MAD.')
+            return redirect('card_payment')
+        
+        if account.balance < amount:
+            messages.error(request, 'Solde insuffisant sur le compte.')
+            return redirect('card_payment')
+        
+        account.balance -= amount
+        account.save()
+        
+        card.daily_spent += amount
+        card.save()
+        
+        Transaction.objects.create(
+            sender=account,
+            amount=amount,
+            type='withdrawal',
+            status='completed',
+        )
+        
+        Notification.objects.create(
+            user=request.user,
+            message=f'Paiement de {amount} MAD effectué avec la carte •••• {card.card_number[-4:]}.',
+            type='confirm_transaction',
+        )
+        
+        messages.success(request, f'Paiement de {amount} MAD effectué avec succès.')
+        return redirect('cards')
+    
+    return render(request, 'cards/card_payment.html', {'cards': cards})

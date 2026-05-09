@@ -4,18 +4,24 @@
 <div class="dashboard-page page-wrapper">
     <div class="container py-5">
         <h2 class="fw-bold text-white mb-4"><i class="bi bi-clock-history me-2"></i>Historique des Transactions</h2>
-
+        <a href="{% url 'export_pdf' %}" class="btn btn-outline-danger shadow-sm">
+            📄 Télécharger mon relevé PDF
+        </a>
         <!-- Filters -->
         <div class="card nova-card p-3 mb-4">
             <div class="d-flex gap-2 flex-wrap">
-                <a href="{% url 'transactions' %}" class="btn {% if not tx_type %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">Toutes</a>
-                <a href="{% url 'transactions' %}?type=deposit" class="btn {% if tx_type == 'deposit' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
+                <a href="{% url 'transactions' %}"
+                    class="btn {% if not tx_type %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">Toutes</a>
+                <a href="{% url 'transactions' %}?type=deposit"
+                    class="btn {% if tx_type == 'deposit' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
                     <i class="bi bi-plus-circle me-1"></i>Dépôts
                 </a>
-                <a href="{% url 'transactions' %}?type=withdrawal" class="btn {% if tx_type == 'withdrawal' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
+                <a href="{% url 'transactions' %}?type=withdrawal"
+                    class="btn {% if tx_type == 'withdrawal' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
                     <i class="bi bi-dash-circle me-1"></i>Retraits
                 </a>
-                <a href="{% url 'transactions' %}?type=transfer" class="btn {% if tx_type == 'transfer' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
+                <a href="{% url 'transactions' %}?type=transfer"
+                    class="btn {% if tx_type == 'transfer' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
                     <i class="bi bi-arrow-left-right me-1"></i>Virements
                 </a>
             </div>
@@ -24,7 +30,7 @@
         <div class="card nova-card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 nova-table">
+                    <table class="table table-hover mb-0 nova-table">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -50,7 +56,8 @@
                                 </td>
                                 <td class="font-monospace" style="font-size:0.82rem;">{% if tx.sender %}{{ tx.sender.account_number }}{% else %}—{% endif %}</td>
                                 <td class="font-monospace" style="font-size:0.82rem;">{% if tx.receiver %}{{ tx.receiver.account_number }}{% else %}—{% endif %}</td>
-                                <td class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' %}amount-negative{% else %}amount-transfer{% endif %}">
+                                <td
+                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' %}amount-negative{% else %}amount-transfer{% endif %}">
                                     {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' %}-{% endif %}{{ tx.amount|floatformat:2 }} MAD
                                 </td>
                                 <td><span class="badge bg-success rounded-pill">{{ tx.status }}</span></td>

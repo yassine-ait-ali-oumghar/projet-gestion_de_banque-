@@ -1,2 +1,5 @@
 django>=4.2
 python-dateutil
+reportlab
+xhtml2pdf
+pillow

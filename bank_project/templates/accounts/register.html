@@ -33,14 +33,14 @@
                                                value="{{ field.value|default:'' }}"
                                                {% if field.field.required %}required{% endif %}>
                                         {% if 'password' in field.html_name %}
-                                        <button type="button" class="password-toggle"><i class="bi bi-eye"></i></button>
+                                        <button type="button" class="password-toggle" style="border:0;outline:0;box-shadow:none;background:transparent;"><i class="bi bi-eye"></i></button>
                                         {% endif %}
                                     </div>
                                     {% if field.errors %}
                                     <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
-                                    {% endif %}
                                     {% if field.help_text %}
                                     <small class="form-text" style="color:#555;">{{ field.help_text }}</small>
+                                    {% endif %}
                                     {% endif %}
                                 </div>
                                 {% endfor %}

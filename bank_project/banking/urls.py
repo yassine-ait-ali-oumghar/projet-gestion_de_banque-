@@ -8,4 +8,5 @@ urlpatterns = [
     path('withdraw/', views.withdraw, name='withdraw'),
     path('transfer/', views.transfer, name='transfer'),
     path('transactions/', views.transactions_list, name='transactions'),
+    path('export-pdf/', views.export_transactions_pdf, name='export_pdf'),
 ]

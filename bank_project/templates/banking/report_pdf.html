@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 0.6cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background-color: #FFFFFF;
+            color: #1F2937;
+            margin: 0;
+            padding: 0;
+            line-height: 1.25;
+            font-size: 11px;
+        }
+        .page-wrap {
+            width: 100%;
+        }
+        .header {
+            background-color: #0F4C5C;
+            color: white;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #2A9D8F;
+        }
+        .brand {
+            font-size: 27px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .tagline {
+            font-size: 9px;
+            opacity: 0.9;
+            margin: 2px 0 0 0;
+            text-transform: uppercase;
+        }
+        .content {
+            width: 100%;
+        }
+        .report-title {
+            color: #0F4C5C;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .report-date {
+            color: #64748B;
+            font-size: 10px;
+            margin-bottom: 8px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 8px;
+            border-collapse: collapse;
+            border: 1px solid #D9E2EC;
+        }
+        .info-table td {
+            padding: 7px 9px;
+            border-bottom: 1px solid #D9E2EC;
+        }
+        .info-label {
+            color: #6B7280;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            width: 180px;
+        }
+        .info-value {
+            color: #0F4C5C;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .tx-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            border: 1px solid #D9E2EC;
+        }
+        .tx-table th {
+            background-color: #F1F5F9;
+            color: #475569;
+            text-align: left;
+            padding: 7px 8px;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #D9E2EC;
+        }
+        .tx-table td {
+            padding: 7px 8px;
+            font-size: 10px;
+            border-bottom: 1px solid #E5EAF0;
+            color: #1F2937;
+        }
+        .amount {
+            font-weight: bold;
+            text-align: right;
+        }
+        .total-row {
+            background-color: #0F4C5C;
+        }
+        .total-row td {
+            font-weight: bold;
+            font-size: 11px;
+            padding: 8px;
+            color: white;
+        }
+        .total-amount {
+            color: #A7F3D0 !important;
+            font-size: 12px !important;
+            text-align: right;
+        }
+        .validation-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #D9E2EC;
+            margin-top: 8px;
+            background-color: #FAFCFF;
+        }
+        .validation-table td {
+            padding: 4px 5px;
+            vertical-align: middle;
+        }
+        .validation-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0F4C5C;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .validation-note {
+            font-size: 9px;
+            color: #6B7280;
+        }
+        .stamp-cell {
+            text-align: right;
+        }
+        .stamp-img {
+            display: block;
+        }
+        .footer {
+            text-align: center;
+            font-size: 8px;
+            color: #9CA3AF;
+            margin-top: 9px;
+            padding-top: 5px;
+            border-top: 1px solid #D9E2EC;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="header">
+            <div class="brand">NovaBank</div>
+            <div class="tagline">L'Excellence Bancaire au Quotidien</div>
+        </div>
+
+        <div class="content">
+            <h2 class="report-title">RELEVÉ DE COMPTE</h2>
+            <div class="report-date">Généré le : {{ current_date }}</div>
+
+            <table class="info-table">
+                <tr>
+                    <td class="info-label">Titulaire du compte</td>
+                    <td class="info-value">{{ user_name }}</td>
+                </tr>
+            </table>
+
+            <table class="tx-table">
+                <colgroup>
+                    <col style="width: 95px;">
+                    <col style="width: 230px;">
+                    <col style="width: 120px;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description / Type</th>
+                        <th style="text-align: right;">Montant (MAD)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                    <tr>
+                        <td>{{ tx.date|date:"d/m/Y" }}</td>
+                        <td style="text-transform: capitalize;">{{ tx.type }}</td>
+                        <td class="amount">{{ tx.amount|floatformat:2 }} MAD</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 14px 8px; color: #6B7280;">
+                            Aucune transaction disponible.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td></td>
+                        <td style="color: white;">TOTAL GÉNÉRAL</td>
+                        <td class="total-amount">{{ total|floatformat:2 }} MAD</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <table class="validation-table">
+                <colgroup>
+                    <col style="width: 390px;">
+                    <col style="width: 90px;">
+                </colgroup>
+                <tr>
+                    <td>
+                        <div class="validation-title">Validation et cachet officiel</div>
+                        <div class="validation-note">Document généré automatiquement et certifié conforme par NovaBank.</div>
+                    </td>
+                    <td class="stamp-cell">
+                        {% if logo_path %}
+                        <img src="{{ logo_path }}" class="stamp-img" alt="Cachet officiel NovaBank" width="84">
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <div class="footer">
+                NovaBank - Siège Social : 123 Avenue de la Finance, Casablanca, Maroc | Page 1 / 1
+            </div>
+        </div>
+    </div>
+</body>
+</html>
