@@ -1,0 +1,77 @@
+{% extends 'administration/base_admin.html' %}
+{% block admin_content %}
+
+<form method="get" action="{% url 'adm_transactions' %}" class="row g-3 align-items-end mb-4">
+    <div class="col-md-5">
+        <label class="form-label text-secondary small">Rechercher (n° de compte)</label>
+        <input type="search" name="q" value="{{ q }}" class="form-control nova-themed-control" placeholder="NB…">
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <label class="form-label text-secondary small">Type</label>
+        <select name="type" class="form-select nova-themed-select">
+            <option value="">Tous</option>
+            {% for t in distinct_types %}
+            <option value="{{ t }}" {% if tx_type == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold">Filtrer</button>
+        {% if q or tx_type %}<a href="{% url 'adm_transactions' %}" class="btn btn-outline-secondary rounded-pill">Réinitialiser</a>{% endif %}
+    </div>
+</form>
+
+<div class="card nova-card p-0 overflow-hidden">
+    <div class="table-responsive admin-table-rounded">
+        <table class="table table-hover align-middle mb-0 nova-table-lite">
+            <thead>
+                <tr class="text-secondary small">
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Émetteur</th>
+                    <th>Récepteur</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in page_obj %}
+                <tr>
+                    <td class="small">{{ tx.date|date:"d/m/Y H:i:s" }}</td>
+                    <td><span class="badge rounded-pill text-bg-secondary text-capitalize">{{ tx.type }}</span></td>
+                    <td class="text-gold fw-semibold">{{ tx.amount|floatformat:2 }} MAD</td>
+                    <td class="small font-monospace text-secondary">
+                        {% if tx.sender %}
+                        {{ tx.sender.account_number }} <span class="text-muted">({{ tx.sender.user.username }})</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="small font-monospace text-secondary">
+                        {% if tx.receiver %}
+                        {{ tx.receiver.account_number }} <span class="text-muted">({{ tx.receiver.user.username }})</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td><span class="badge rounded-pill bg-transparent border border-secondary text-secondary">{{ tx.status }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-secondary py-5 text-center">Aucune transaction.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="mt-4" aria-label="Pagination transactions">
+    <ul class="pagination pagination-sm nova-pagination justify-content-center flex-wrap gap-1">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if tx_type %}&type={{ tx_type }}{% endif %}">&laquo;</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if tx_type %}&type={{ tx_type }}{% endif %}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

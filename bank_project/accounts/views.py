@@ -10,7 +10,7 @@ from notifications.models import Notification
 def register_view(request):
     """Vue d'inscription d'un nouvel utilisateur."""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('adm_dashboard') if request.user.is_staff else redirect('dashboard')
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -30,20 +30,25 @@ def register_view(request):
 
 
 def login_view(request):
-    """Vue de connexion."""
+    """Vue de connexion (nom d'utilisateur ou e-mail, selon backends)."""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('adm_dashboard') if request.user.is_staff else redirect('dashboard')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
-        if user is not None:
+        if user is not None and not user.is_active:
+            messages.error(request, 'Ce compte utilisateur a été désactivé. Contactez le support.')
+        elif user is not None:
             login(request, user)
             Notification.objects.create(
                 user=user,
                 message=f'Connexion détectée à votre compte.',
                 type='login_alert',
             )
+            if user.is_staff:
+                messages.success(request, "Connexion réussie — panneau d'administration.")
+                return redirect('adm_dashboard')
             messages.success(request, 'Connexion réussie.')
             return redirect('dashboard')
         else:

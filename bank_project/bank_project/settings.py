@@ -27,6 +27,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# ---------------------------------------------------------------------------
+# Administrateur NovaBank (démo / développement)
+# Ces valeurs sont en clair volontairement — NE JAMAIS réutiliser telles quelles
+# en production : utilisez des secrets (variables d’environnement) et changez le mot de passe.
+# Création du compte :  python manage.py init_nova_admin
+# ---------------------------------------------------------------------------
+NOVA_ADMIN_DEFAULT = {
+    'username': 'admin',
+    'email': 'admin@novabank.local',
+    'password': 'NovaBank-Admin-2026!',
+}
+
+# Si True et DEBUG : crée automatiquement ce compte après les migrations de l’app accounts.
+NOVA_ADMIN_AUTO_BOOTSTRAP = DEBUG
+
 
 # Application definition
 
@@ -42,6 +57,7 @@ INSTALLED_APPS = [
     'dashboard',
     'notifications',
     'cards',
+    'administration',
 ]
 
 MIDDLEWARE = [
@@ -94,6 +110,11 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailOrUsernameBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

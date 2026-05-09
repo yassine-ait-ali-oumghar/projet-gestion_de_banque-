@@ -1,0 +1,85 @@
+{% extends 'administration/base_admin.html' %}
+{% block admin_content %}
+
+<form method="get" action="{% url 'adm_users' %}" class="row g-3 align-items-end mb-4">
+    <div class="col-md-8 col-lg-6">
+        <label class="form-label text-secondary small">Rechercher</label>
+        <input type="search" name="q" value="{{ q }}" class="form-control nova-themed-control" placeholder="Nom d'utilisateur, e-mail ou nom…">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold">Filtrer</button>
+        {% if q %}<a href="{% url 'adm_users' %}" class="btn btn-outline-secondary rounded-pill">Réinitialiser</a>{% endif %}
+    </div>
+</form>
+
+<div class="card nova-card p-0 overflow-hidden">
+    <div class="table-responsive admin-table-rounded">
+        <table class="table table-hover align-middle mb-0 nova-table-lite">
+            <thead>
+                <tr class="text-secondary small">
+                    <th>Utilisateur</th>
+                    <th>E-mail</th>
+                    <th>Inscription</th>
+                    <th>Rôles</th>
+                    <th class="text-end">État</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in page_obj %}
+                <tr>
+                    <td class="fw-semibold">{{ u.username }}</td>
+                    <td class="text-secondary small">{{ u.email|default:"—" }}</td>
+                    <td class="small text-secondary">{{ u.date_joined|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if u.is_superuser %}
+                        <span class="badge text-bg-danger rounded-pill">Super</span>
+                        {% elif u.is_staff %}
+                        <span class="badge text-bg-warning text-dark rounded-pill">Staff</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary rounded-pill">Client</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if u.is_active %}
+                        <span class="badge text-bg-success rounded-pill">Actif</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary rounded-pill">Désactivé</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if u.pk != request.user.pk %}
+                        <form method="post" action="{% url 'adm_toggle_user' u.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm rounded-pill {% if u.is_active %}btn-outline-warning{% else %}btn-success{% endif %}">
+                                {% if u.is_active %}<i class="bi bi-pause-circle me-1"></i>Désactiver{% else %}<i class="bi bi-play-circle me-1"></i>Activer{% endif %}
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="small text-secondary">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-secondary py-5 text-center">Aucun utilisateur.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="mt-4" aria-label="Pagination utilisateurs">
+    <ul class="pagination pagination-sm nova-pagination justify-content-center flex-wrap gap-1">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">&laquo;</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

@@ -22,8 +22,8 @@
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-3">
-                                <label for="username" class="form-label text-secondary">Nom d'utilisateur</label>
-                                <input type="text" name="username" id="username" class="form-control nova-input" required autofocus>
+                                <label for="username" class="form-label text-secondary">E-mail ou nom d'utilisateur</label>
+                                <input type="text" name="username" id="username" class="form-control nova-input" placeholder="admin@example.com ou votre pseudo" autocomplete="username" required autofocus>
                             </div>
                             <div class="mb-4">
                                 <label for="password" class="form-label text-secondary">Mot de passe</label>

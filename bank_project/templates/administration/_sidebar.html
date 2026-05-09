@@ -1,0 +1,22 @@
+<div class="card nova-card p-3 sticky-top nova-admin-sidebar" style="top: 5rem;">
+    <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom" style="border-color: var(--border-color) !important;">
+        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning text-dark" style="width:36px;height:36px;">
+            <i class="bi bi-shield-lock-fill"></i>
+        </span>
+        <div>
+            <span class="d-block fw-bold small" style="color: var(--text-primary);">NovaBank Admin</span>
+            <span class="text-secondary" style="font-size: 0.75rem;">Panneau de supervision</span>
+        </div>
+    </div>
+    <nav class="nav flex-column gap-1" aria-label="Menu administration">
+        {% for item in adm_nav %}
+        <a href="{% url item.url_name %}"
+           class="nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-2 {% if item.url_name == 'admin:index' %}{% if request.path == '/admin' or request.path|slice:'0:7' == '/admin/' %}active text-dark bg-warning{% else %}text-secondary{% endif %}{% elif request.resolver_match.url_name == item.url_name %}active text-dark bg-warning{% else %}text-secondary{% endif %}">
+            <i class="{{ item.icon }} fs-5"></i>
+            <span>{{ item.label }}</span>
+        </a>
+        {% endfor %}
+    </nav>
+    <hr class="my-3" style="border-color: var(--border-color);">
+    <p class="text-secondary mb-0 small px-1">Les actions affectent tous les utilisateurs de la plateforme.</p>
+</div>

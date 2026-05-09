@@ -1,0 +1,82 @@
+{% extends 'administration/base_admin.html' %}
+{% block admin_content %}
+
+<form method="get" action="{% url 'adm_accounts' %}" class="row g-3 align-items-end mb-4">
+    <div class="col-md-6 col-lg-5">
+        <label class="form-label text-secondary small">Rechercher</label>
+        <input type="search" name="q" value="{{ q }}" class="form-control nova-themed-control" placeholder="N° compte, client ou type…">
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <label class="form-label text-secondary small">État du compte</label>
+        <select name="status" class="form-select nova-themed-select">
+            <option value="" {% if not status %}selected{% endif %}>Tous</option>
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Actifs</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Désactivés</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold">Filtrer</button>
+    </div>
+</form>
+
+<div class="card nova-card p-0 overflow-hidden">
+    <div class="table-responsive admin-table-rounded">
+        <table class="table table-hover align-middle mb-0 nova-table-lite">
+            <thead>
+                <tr class="text-secondary small">
+                    <th>N° compte</th>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Solde</th>
+                    <th>Création</th>
+                    <th>État</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acc in page_obj %}
+                <tr {% if not acc.is_active %}class="opacity-75"{% endif %}>
+                    <td class="font-monospace">{{ acc.account_number }}</td>
+                    <td>{{ acc.user.username }}</td>
+                    <td><span class="badge rounded-pill text-bg-secondary">{{ acc.type }}</span></td>
+                    <td class="text-gold fw-semibold">{{ acc.balance|floatformat:2 }} MAD</td>
+                    <td class="small text-secondary">{{ acc.date_creation|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if acc.is_active %}
+                        <span class="badge text-bg-success rounded-pill">Actif</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary rounded-pill">Désactivé</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <form method="post" action="{% url 'adm_toggle_account' acc.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm rounded-pill {% if acc.is_active %}btn-outline-warning{% else %}btn-success{% endif %}">
+                                {% if acc.is_active %}<i class="bi bi-lock me-1"></i>Geler{% else %}<i class="bi bi-unlock me-1"></i>Réactiver{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-secondary py-5 text-center">Aucun compte.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="mt-4" aria-label="Pagination comptes">
+    <ul class="pagination pagination-sm nova-pagination justify-content-center flex-wrap gap-1">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}">&laquo;</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

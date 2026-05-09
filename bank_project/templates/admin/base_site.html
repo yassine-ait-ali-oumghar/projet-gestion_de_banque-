@@ -1,0 +1,152 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | NovaBank{% endblock %}
+
+{% block branding %}
+<div style="display:flex;align-items:center;gap:8px;">
+    <img src="{% static 'img/nova_icon.png' %}" alt="NovaBank" style="height:28px;width:auto;" onerror="this.style.display='none'">
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}
+<div style="display:flex;align-items:center;gap:12px;padding:4px 14px;">
+    <button type="button" id="novaAdminThemeToggle" title="Toggle theme"
+            style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:inherit;padding:4px;">
+        🌙
+    </button>
+    <a href="{% url 'adm_dashboard' %}" style="font-size:.82rem;color:rgba(255,255,255,.7);text-decoration:none;">
+        <img src="{% static 'img/nova_settings.png' %}" alt="" style="height:22px;vertical-align:middle;" onerror="this.outerHTML='⚙️'">
+    </a>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+(function(){
+    var t = localStorage.getItem('nova-admin-theme');
+    if (t === 'dark') document.documentElement.setAttribute('data-admin-theme','dark');
+})();
+</script>
+<style>
+/* ===== NovaBank Django Admin — Custom Theme Matching Screenshot ===== */
+
+/* Keep the default Django admin look but add NovaBank branding */
+#header {
+    background: #417690 !important;
+    color: #ffc;
+}
+#header a:link, #header a:visited {
+    color: #ffc;
+}
+#header #branding h1 {
+    color: #ffc;
+}
+
+/* Theme toggle in nav-global */
+#novaAdminThemeToggle {
+    color: rgba(255,255,255,.85);
+}
+
+/* Dark theme overrides */
+[data-admin-theme="dark"] body {
+    background: #121212 !important;
+    color: #e0e0e0 !important;
+}
+[data-admin-theme="dark"] #header {
+    background: #1a2a3a !important;
+}
+[data-admin-theme="dark"] #content,
+[data-admin-theme="dark"] .module,
+[data-admin-theme="dark"] #changelist-filter {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+}
+[data-admin-theme="dark"] .module h2,
+[data-admin-theme="dark"] .module caption {
+    background: #264b5d !important;
+    color: #ffc !important;
+}
+[data-admin-theme="dark"] #nav-sidebar,
+[data-admin-theme="dark"] #nav-sidebar .module {
+    background: #1a1a2e !important;
+}
+[data-admin-theme="dark"] #nav-sidebar .module th,
+[data-admin-theme="dark"] #nav-sidebar .module caption a {
+    color: #e0e0e0 !important;
+}
+[data-admin-theme="dark"] #changelist table tbody td,
+[data-admin-theme="dark"] #changelist table tbody th {
+    border-color: #333 !important;
+}
+[data-admin-theme="dark"] a:link, [data-admin-theme="dark"] a:visited {
+    color: #79aec8;
+}
+[data-admin-theme="dark"] #changelist-filter h2 {
+    background: #264b5d !important;
+    color: #ffc !important;
+}
+[data-admin-theme="dark"] #changelist-filter li a {
+    color: #79aec8 !important;
+}
+[data-admin-theme="dark"] .breadcrumbs {
+    background: #264b5d !important;
+    color: #c4dce8 !important;
+}
+[data-admin-theme="dark"] .breadcrumbs a {
+    color: #ffc !important;
+}
+[data-admin-theme="dark"] #result_list th {
+    background: #264b5d !important;
+    color: #ffc !important;
+}
+[data-admin-theme="dark"] #result_list td {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+}
+[data-admin-theme="dark"] .object-tools a,
+[data-admin-theme="dark"] .addlink {
+    background: #417690 !important;
+}
+[data-admin-theme="dark"] input,
+[data-admin-theme="dark"] select,
+[data-admin-theme="dark"] textarea {
+    background: #2a2a2a !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+[data-admin-theme="dark"] .submit-row input {
+    background: #417690 !important;
+    color: #fff !important;
+}
+</style>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+(function () {
+    var btn = document.getElementById('novaAdminThemeToggle');
+    if (!btn) return;
+    function sync() {
+        var dark = document.documentElement.getAttribute('data-admin-theme') === 'dark';
+        btn.textContent = dark ? '☀️' : '🌙';
+    }
+    sync();
+    btn.addEventListener('click', function () {
+        var h = document.documentElement;
+        var next = (h.getAttribute('data-admin-theme') === 'dark') ? '' : 'dark';
+        if (next) {
+            h.setAttribute('data-admin-theme', 'dark');
+            localStorage.setItem('nova-admin-theme', 'dark');
+        } else {
+            h.removeAttribute('data-admin-theme');
+            localStorage.removeItem('nova-admin-theme');
+        }
+        sync();
+    });
+})();
+</script>
+{% endblock %}

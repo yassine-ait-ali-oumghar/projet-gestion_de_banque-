@@ -1,11 +1,12 @@
 from django.contrib import admin
+
 from .models import Account, Transaction
 
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('account_number', 'user', 'type', 'balance', 'date_creation')
-    list_filter = ('type', 'date_creation')
+    list_display = ('account_number', 'user', 'type', 'balance', 'is_active', 'date_creation')
+    list_filter = ('type', 'is_active', 'date_creation')
     search_fields = ('account_number', 'user__username')
     readonly_fields = ('date_creation',)
 

@@ -58,7 +58,7 @@ def create_account(request):
 @login_required
 def deposit(request):
     """Dépôt d'argent sur un compte."""
-    accounts = Account.objects.filter(user=request.user)
+    accounts = Account.objects.filter(user=request.user, is_active=True)
     if request.method == 'POST':
         account_id = request.POST.get('account')
         amount_str = request.POST.get('amount')
@@ -69,7 +69,7 @@ def deposit(request):
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
             return redirect('deposit')
-        account = get_object_or_404(Account, id=account_id, user=request.user)
+        account = get_object_or_404(Account, id=account_id, user=request.user, is_active=True)
         account.balance += amount
         account.save()
         Transaction.objects.create(
@@ -91,7 +91,7 @@ def deposit(request):
 @login_required
 def withdraw(request):
     """Retrait d'argent d'un compte."""
-    accounts = Account.objects.filter(user=request.user)
+    accounts = Account.objects.filter(user=request.user, is_active=True)
     if request.method == 'POST':
         account_id = request.POST.get('account')
         amount_str = request.POST.get('amount')
@@ -102,7 +102,7 @@ def withdraw(request):
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
             return redirect('withdraw')
-        account = get_object_or_404(Account, id=account_id, user=request.user)
+        account = get_object_or_404(Account, id=account_id, user=request.user, is_active=True)
         if account.balance < amount:
             messages.error(request, 'Solde insuffisant.')
             return redirect('withdraw')
@@ -127,7 +127,7 @@ def withdraw(request):
 @login_required
 def transfer(request):
     """Virement entre comptes."""
-    accounts = Account.objects.filter(user=request.user)
+    accounts = Account.objects.filter(user=request.user, is_active=True)
     if request.method == 'POST':
         sender_id = request.POST.get('sender')
         receiver_number = request.POST.get('receiver')
@@ -146,11 +146,14 @@ def transfer(request):
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
             return redirect('transfer')
-        sender = get_object_or_404(Account, id=sender_id, user=request.user)
+        sender = get_object_or_404(Account, id=sender_id, user=request.user, is_active=True)
         try:
             receiver = Account.objects.get(account_number=receiver_number)
         except Account.DoesNotExist:
             messages.error(request, 'Compte destinataire introuvable.')
+            return redirect('transfer')
+        if not receiver.is_active:
+            messages.error(request, 'Ce compte destinataire est désactivé.')
             return redirect('transfer')
         if sender.balance < amount:
             messages.error(request, 'Solde insuffisant.')

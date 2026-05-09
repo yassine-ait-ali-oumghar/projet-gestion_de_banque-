@@ -1,0 +1,127 @@
+{% extends 'administration/base_admin.html' %}
+{% block admin_content %}
+
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card summary-card gold p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon"><i class="bi bi-people"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Utilisateurs</p>
+                    <h4 class="fw-bold text-gold mb-0">{{ user_active }} / {{ user_total }} <small class="fs-6 text-secondary fw-normal">actifs</small></h4>
+                    <p class="text-secondary mb-0 small mt-2">{{ staff_count }} compte(s) équipe administration</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card summary-card emerald p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon" style="background:var(--nova-emerald-soft);color:var(--nova-emerald);"><i class="bi bi-wallet2"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Comptes bancaires</p>
+                    <h4 class="fw-bold mb-0" style="color: var(--text-primary);">{{ accounts_active }} / {{ accounts_total }} <small class="fs-6 text-secondary fw-normal">actifs</small></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card summary-card sapphire p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon" style="background:var(--nova-sapphire-soft);color:var(--nova-sapphire);"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Transactions totales</p>
+                    <h4 class="fw-bold mb-0" style="color: var(--text-primary);">{{ tx_total }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon" style="background:var(--nova-ruby-soft);color:var(--nova-ruby);"><i class="bi bi-piggy-bank"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Encours tous comptes</p>
+                    <h4 class="fw-bold mb-0" style="color: var(--text-primary);">{{ accounts_balance|floatformat:2 }} <small class="fs-6">MAD</small></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon"><i class="bi bi-calendar-month"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Volume transactions (mois)</p>
+                    <h4 class="fw-bold text-gold mb-0">{{ tx_volume_month|floatformat:2 }} <small class="fs-6">MAD</small></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card nova-card p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="feature-icon" style="background:var(--nova-sapphire-soft);color:var(--nova-sapphire);"><i class="bi bi-graph-up-arrow"></i></div>
+                <div>
+                    <p class="text-secondary mb-0" style="font-size:0.8rem;">Volume historique cumulé</p>
+                    <h4 class="fw-bold mb-0" style="color: var(--text-primary);">{{ tx_volume_all_time|floatformat:2 }} <small class="fs-6">MAD</small></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card nova-card p-4 h-100">
+            <h6 class="fw-bold text-white mb-3"><i class="bi bi-pie-chart me-2 text-gold"></i>Répartition par type</h6>
+            {% if tx_by_type %}
+            <ul class="list-unstyled mb-0">
+                {% for row in tx_by_type %}
+                <li class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color:var(--border-color)!important;">
+                    <span class="text-secondary text-capitalize">{{ row.type }}</span>
+                    <span class="badge bg-secondary rounded-pill">{{ row.cnt }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-secondary mb-0">Aucune transaction enregistrée.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card nova-card p-4 h-100">
+            <h6 class="fw-bold mb-3" style="color: var(--text-primary);"><i class="bi bi-clock-history me-2 text-gold"></i>Dernières opérations</h6>
+            <div class="table-responsive admin-table-rounded">
+                <table class="table table-hover table-sm align-middle mb-0 nova-table-lite">
+                    <thead>
+                        <tr class="text-secondary small">
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Montant</th>
+                            <th>Détail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in recent_transactions %}
+                        <tr>
+                            <td class="small text-secondary">{{ tx.date|date:"d/m/Y H:i" }}</td>
+                            <td><span class="badge rounded-pill text-bg-secondary text-capitalize">{{ tx.type }}</span></td>
+                            <td class="text-gold fw-semibold">{{ tx.amount|floatformat:2 }} MAD</td>
+                            <td class="small text-secondary">
+                                {% if tx.sender %}<span>{{ tx.sender.account_number }}</span>{% endif %}
+                                {% if tx.sender and tx.receiver %}<i class="bi bi-arrow-right mx-1"></i>{% endif %}
+                                {% if tx.receiver %}<span>{{ tx.receiver.account_number }}</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-secondary">Aucune donnée.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

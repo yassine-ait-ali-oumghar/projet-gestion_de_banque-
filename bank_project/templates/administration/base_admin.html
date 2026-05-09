@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ adm_title }} | Administration NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page admin-backstage page-wrapper">
+    <div class="container-fluid px-3 px-lg-4 py-4 py-lg-5">
+        <div class="row g-4">
+            <aside class="col-lg-3 col-xxl-2">
+                {% include 'administration/_sidebar.html' %}
+            </aside>
+            <div class="col-lg-9 col-xxl-10">
+                <div class="mb-4">
+                    <h1 class="h3 fw-bold mb-1" style="color: var(--text-primary);">{{ adm_title }}</h1>
+                    <p class="text-secondary mb-0 small">Vue centralisée — supervision utilisateurs, comptes et transactions.</p>
+                </div>
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
