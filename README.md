@@ -95,7 +95,10 @@ projet-gestion_de_banque-/
 │   ├── requirements.txt             # Dépendances Python
 │   └── db.sqlite3                   # Base de données SQLite (dev)
 │
-├── CAHIER DE CHARGE (PYTHON).docx   # Cahier des charges du projet
+├── CAHIER DE CHARGE (PYTHON).pdf    # Cahier des charges du projet (PDF)
+├── Rapport-Django.docx              # Rapport du projet Django
+├── presentation/                    # Présentation du projet (HTML)
+│   └── index.html                   # Slides de présentation
 ├── venv/                            # Environnement virtuel Python
 └── README.md                        # Ce fichier
 ```
@@ -162,7 +165,7 @@ projet-gestion_de_banque-/
 
 1. **Cloner le projet**
    ```bash
-   git clone https://github.com/votre-repo/projet-gestion_de_banque-.git
+   git clone https://github.com/yassine-ait-ali-oumghar/projet-gestion_de_banque-.git
    cd projet-gestion_de_banque-
    ```
 
@@ -236,6 +239,16 @@ pillow
 ## 📄 Licence
 
 Projet académique — Développé dans le cadre du cahier des charges **"Gestion de Banque"** en Python/Django.
+
+---
+
+## 📚 Documents du Projet
+
+| Document | Description |
+|----------|-------------|
+| **CAHIER DE CHARGE (PYTHON).pdf** | Cahier des charges complet du projet |
+| **Rapport-Django.docx** | Rapport détaillé du projet Django |
+| **presentation/index.html** | Présentation interactive du projet |
 
 ---
 
