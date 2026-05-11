@@ -16,7 +16,10 @@ import os
 from datetime import datetime
 from io import BytesIO
 from django.template.loader import render_to_string
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
 
 def _generate_account_number():
     """Génère un numéro de compte unique."""

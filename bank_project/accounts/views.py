@@ -16,7 +16,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             Profile.objects.create(user=user)
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             Notification.objects.create(
                 user=user,
                 message='Bienvenue chez NovaBank ! Votre compte a été créé avec succès.',
