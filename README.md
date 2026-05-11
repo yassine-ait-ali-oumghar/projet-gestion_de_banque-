@@ -34,7 +34,6 @@
 ### Base de Données
 
 - **MySQL** — Base de données principale (port `3306`)
-- **SQLite3** — Alternative disponible (commentée dans `settings.py`)
 
 ---
 
@@ -97,8 +96,6 @@ projet-gestion_de_banque-/
 │
 ├── CAHIER DE CHARGE (PYTHON).pdf    # Cahier des charges du projet (PDF)
 ├── Rapport-Django.docx              # Rapport du projet Django
-├── presentation/                    # Présentation du projet (HTML)
-│   └── index.html                   # Slides de présentation
 ├── venv/                            # Environnement virtuel Python
 └── README.md                        # Ce fichier
 ```
@@ -248,7 +245,6 @@ Projet académique — Développé dans le cadre du cahier des charges **"Gestio
 |----------|-------------|
 | **CAHIER DE CHARGE (PYTHON).pdf** | Cahier des charges complet du projet |
 | **Rapport-Django.docx** | Rapport détaillé du projet Django |
-| **presentation/index.html** | Présentation interactive du projet |
 
 ---
 

@@ -21,3 +21,6 @@ venv.bak/
 
 # Trae
 .trae/
+
+# Presentation
+presentation/
