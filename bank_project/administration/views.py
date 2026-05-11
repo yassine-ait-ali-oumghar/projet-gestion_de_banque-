@@ -173,6 +173,32 @@ def toggle_user_active(request, pk):
 
 @staff_only
 @require_POST
+def delete_user(request, pk):
+    target = get_object_or_404(User, pk=pk)
+    redirect_to = redirect('adm_users')
+
+    if target.pk == request.user.pk:
+        messages.error(request, 'Vous ne pouvez pas supprimer votre propre compte.')
+        return redirect_to
+
+    if target.is_superuser and not request.user.is_superuser:
+        messages.error(request, 'Seuls les super-utilisateurs peuvent supprimer ce compte.')
+        return redirect_to
+
+    if target.is_superuser:
+        other_su = User.objects.filter(is_superuser=True).exclude(pk=target.pk).exists()
+        if not other_su:
+            messages.error(request, 'Impossible de supprimer le dernier super-utilisateur.')
+            return redirect_to
+
+    username = target.username
+    target.delete()
+    messages.success(request, f'Utilisateur « {username} » supprimé définitivement.')
+    return redirect_to
+
+
+@staff_only
+@require_POST
 def toggle_account_active(request, pk):
     account = get_object_or_404(Account, pk=pk)
     account.is_active = not account.is_active

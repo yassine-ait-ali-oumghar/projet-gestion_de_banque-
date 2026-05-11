@@ -2,24 +2,43 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Sum
 from .models import Account, Transaction
 from notifications.models import Notification
 from decimal import Decimal, InvalidOperation
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import random
+import re
 import string
 from reportlab.lib.utils import ImageReader
 from django.conf import settings
 import os
-from datetime import datetime
+from datetime import datetime, date
 from io import BytesIO
 from django.template.loader import render_to_string
 try:
     from xhtml2pdf import pisa
 except ImportError:
     pisa = None
+
+DEPOSIT_MIN = Decimal('100.00')
+DEPOSIT_MAX = Decimal('50000.00')
+WITHDRAW_MIN = Decimal('50.00')
+WITHDRAW_MAX = Decimal('3000.00')
+WITHDRAW_DAILY_LIMIT = Decimal('10000.00')
+TRANSFER_MIN = Decimal('10.00')
+TRANSFER_MAX = Decimal('10000.00')
+TRANSFER_DAILY_LIMIT = Decimal('20000.00')
+
+
+def _daily_total(account, tx_type):
+    today = date.today()
+    result = Transaction.objects.filter(
+        sender=account, type=tx_type, date__date=today
+    ).aggregate(total=Sum('amount'))['total']
+    return result or Decimal('0.00')
+
 
 def _generate_account_number():
     """Génère un numéro de compte unique."""
@@ -62,6 +81,9 @@ def create_account(request):
 def deposit(request):
     """Dépôt d'argent sur un compte."""
     accounts = Account.objects.filter(user=request.user, is_active=True)
+    if not accounts.exists():
+        messages.warning(request, 'Vous devez d\'abord créer un compte bancaire avant d\'effectuer un dépôt.')
+        return redirect('create_account')
     if request.method == 'POST':
         account_id = request.POST.get('account')
         amount_str = request.POST.get('amount')
@@ -71,6 +93,12 @@ def deposit(request):
                 raise InvalidOperation
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
+            return redirect('deposit')
+        if amount < DEPOSIT_MIN:
+            messages.error(request, f'Le montant minimum de dépôt est de {DEPOSIT_MIN} MAD.')
+            return redirect('deposit')
+        if amount > DEPOSIT_MAX:
+            messages.error(request, f'Le montant maximum de dépôt est de {DEPOSIT_MAX} MAD par opération.')
             return redirect('deposit')
         account = get_object_or_404(Account, id=account_id, user=request.user, is_active=True)
         account.balance += amount
@@ -95,6 +123,9 @@ def deposit(request):
 def withdraw(request):
     """Retrait d'argent d'un compte."""
     accounts = Account.objects.filter(user=request.user, is_active=True)
+    if not accounts.exists():
+        messages.warning(request, 'Vous devez d\'abord créer un compte bancaire avant d\'effectuer un retrait.')
+        return redirect('create_account')
     if request.method == 'POST':
         account_id = request.POST.get('account')
         amount_str = request.POST.get('amount')
@@ -105,7 +136,18 @@ def withdraw(request):
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
             return redirect('withdraw')
+        if amount < WITHDRAW_MIN:
+            messages.error(request, f'Le montant minimum de retrait est de {WITHDRAW_MIN} MAD.')
+            return redirect('withdraw')
+        if amount > WITHDRAW_MAX:
+            messages.error(request, f'Le montant maximum de retrait est de {WITHDRAW_MAX} MAD par opération.')
+            return redirect('withdraw')
         account = get_object_or_404(Account, id=account_id, user=request.user, is_active=True)
+        daily_withdrawn = _daily_total(account, 'withdrawal')
+        if daily_withdrawn + amount > WITHDRAW_DAILY_LIMIT:
+            remaining = WITHDRAW_DAILY_LIMIT - daily_withdrawn
+            messages.error(request, f'Plafond journalier de retrait atteint ({WITHDRAW_DAILY_LIMIT} MAD/jour). Il vous reste {remaining:.2f} MAD disponibles aujourd\'hui.')
+            return redirect('withdraw')
         if account.balance < amount:
             messages.error(request, 'Solde insuffisant.')
             return redirect('withdraw')
@@ -131,14 +173,16 @@ def withdraw(request):
 def transfer(request):
     """Virement entre comptes."""
     accounts = Account.objects.filter(user=request.user, is_active=True)
+    if not accounts.exists():
+        messages.warning(request, 'Vous devez d\'abord créer un compte bancaire avant d\'effectuer un virement.')
+        return redirect('create_account')
     if request.method == 'POST':
         sender_id = request.POST.get('sender')
-        receiver_number = request.POST.get('receiver')
+        receiver_number = (request.POST.get('receiver') or '').strip().upper()
         amount_str = request.POST.get('amount')
         
-        import re
         account_pattern = re.compile(r'^[A-Z]{2}\d+$')
-        if not account_pattern.match(receiver_number):
+        if not receiver_number or not account_pattern.match(receiver_number):
             messages.error(request, 'Format de compte invalide. Doit commencer par 2 lettres majuscules suivies de chiffres (ex: NB1234567890).')
             return redirect('transfer')
         
@@ -149,7 +193,21 @@ def transfer(request):
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, 'Montant invalide.')
             return redirect('transfer')
+        if amount < TRANSFER_MIN:
+            messages.error(request, f'Le montant minimum de virement est de {TRANSFER_MIN} MAD.')
+            return redirect('transfer')
+        if amount > TRANSFER_MAX:
+            messages.error(request, f'Le montant maximum de virement est de {TRANSFER_MAX} MAD par opération.')
+            return redirect('transfer')
         sender = get_object_or_404(Account, id=sender_id, user=request.user, is_active=True)
+        if sender.account_number == receiver_number:
+            messages.error(request, 'Vous ne pouvez pas effectuer un virement vers le même compte.')
+            return redirect('transfer')
+        daily_transferred = _daily_total(sender, 'transfer')
+        if daily_transferred + amount > TRANSFER_DAILY_LIMIT:
+            remaining = TRANSFER_DAILY_LIMIT - daily_transferred
+            messages.error(request, f'Plafond journalier de virement atteint ({TRANSFER_DAILY_LIMIT} MAD/jour). Il vous reste {remaining:.2f} MAD disponibles aujourd\'hui.')
+            return redirect('transfer')
         try:
             receiver = Account.objects.get(account_number=receiver_number)
         except Account.DoesNotExist:

@@ -111,17 +111,22 @@ projet-gestion_de_banque-/
 - Commande `init_nova_admin` pour créer l'administrateur par défaut
 
 ### 💰 Opérations Bancaires
-- **Création de comptes** bancaires (Courant, Épargne, etc.)
-- **Dépôt** d'argent sur un compte
-- **Retrait** avec vérification du solde
-- **Virement** entre comptes (même utilisateur ou vers un autre)
+- **Création de comptes** bancaires (Courant, Épargne, etc.) — requis avant toute opération
+- **Dépôt** : min **100 MAD**, max **50 000 MAD** par opération
+- **Retrait** : min **50 MAD**, max **3 000 MAD** par opération, plafond **10 000 MAD/jour**
+- **Virement** : min **10 MAD**, max **10 000 MAD** par opération, plafond **20 000 MAD/jour**
+- Virement vers soi-même **bloqué**
+- Vérification du solde avant toute opération débitrice
 - **Historique des transactions** avec filtrage par type
 - **Export PDF** des transactions (rapport avec cachet officiel)
 
 ### 💳 Cartes Bancaires
-- Gestion des cartes liées aux comptes
-- Plafond de dépenses journalier
-- Suivi du statut (active / bloquée)
+- Demande de carte liée à un **compte actif** uniquement
+- Carte valide **3 ans** à partir de la date de création
+- Paiement par carte avec vérification d'**expiration** et de **solde**
+- Plafond de dépenses journalier (défaut : **10 000 MAD/jour**)
+- Activation / désactivation à la volée
+- Les cartes expirées sont automatiquement exclues des paiements
 
 ### 🔔 Notifications
 - Notifications automatiques pour chaque opération
@@ -134,8 +139,10 @@ projet-gestion_de_banque-/
 - Métriques et statistiques utilisateur
 
 ### 🛡️ Administration (Staff)
-- **Dashboard superviseur** : vue d'ensemble (utilisateurs, comptes, volumes)
-- **Gestion des utilisateurs** : recherche, activation/désactivation
+- **Dashboard superviseur** : vue d'ensemble (utilisateurs, comptes, volumes, graphiques)
+- **Gestion des utilisateurs** : recherche, activation/désactivation, **suppression définitive**
+  - Protection : impossible de supprimer son propre compte ou le dernier super-utilisateur
+  - Confirmation via **modal moderne** (pas d'alert navigateur)
 - **Gestion des comptes bancaires** : filtrage par statut, activation/désactivation
 - **Suivi des transactions** : filtrage par type, recherche par numéro de compte
 - Pagination sur toutes les listes
@@ -230,6 +237,24 @@ reportlab
 xhtml2pdf
 pillow
 ```
+
+---
+
+## 🔒 Règles Métier (Contrôle de Saisie)
+
+| Opération | Minimum | Maximum / op. | Plafond journalier |
+|-----------|---------|---------------|--------------------|
+| **Dépôt** | 100 MAD | 50 000 MAD | — |
+| **Retrait** | 50 MAD | 3 000 MAD | 10 000 MAD/jour |
+| **Virement** | 10 MAD | 10 000 MAD | 20 000 MAD/jour |
+| **Paiement carte** | — | Plafond carte | 10 000 MAD/jour |
+
+**Autres protections :**
+- Impossible de faire un virement vers son propre compte
+- Impossible de débiter un compte inactif ou insuffisamment approvisionné
+- Impossible d'utiliser une carte expirée ou inactive
+- Compte bancaire requis avant toute transaction
+- Carte active requise avant tout paiement par carte
 
 ---
 

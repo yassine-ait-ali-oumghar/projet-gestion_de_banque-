@@ -43,7 +43,10 @@ def request_card(request):
         )
         messages.success(request, 'Carte bancaire créée avec succès.')
         return redirect('cards')
-    accounts = Account.objects.filter(user=request.user)
+    accounts = Account.objects.filter(user=request.user, is_active=True)
+    if not accounts.exists():
+        messages.warning(request, 'Vous devez avoir un compte bancaire actif pour demander une carte.')
+        return redirect('create_account')
     return render(request, 'cards/request_card.html', {'accounts': accounts})
 
 
@@ -72,8 +75,12 @@ def toggle_card(request, card_id):
 def card_payment(request):
     """Effectuer un paiement avec une carte bancaire."""
     user_accounts = Account.objects.filter(user=request.user)
+    today = date.today()
     cards = Card.objects.filter(account__in=user_accounts, status='active').select_related('account')
-    
+    cards = [c for c in cards if c.expiration_date >= today]
+    if not cards:
+        messages.warning(request, 'Vous n\'avez aucune carte bancaire active. Veuillez en demander une.')
+        return redirect('request_card')
     if request.method == 'POST':
         card_id = request.POST.get('card')
         amount_str = request.POST.get('amount')
@@ -88,9 +95,10 @@ def card_payment(request):
             return redirect('card_payment')
         
         card = get_object_or_404(Card, id=card_id, account__in=user_accounts, status='active')
+        if card.expiration_date < today:
+            messages.error(request, 'Cette carte est expirée.')
+            return redirect('card_payment')
         account = card.account
-        
-        today = date.today()
         
         if card.last_spending_date != today:
             card.daily_spent = Decimal('0.00')
@@ -113,7 +121,7 @@ def card_payment(request):
         Transaction.objects.create(
             sender=account,
             amount=amount,
-            type='withdrawal',
+            type='card_payment',
             status='completed',
         )
         
