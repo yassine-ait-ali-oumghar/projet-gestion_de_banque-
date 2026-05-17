@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .forms import RegisterForm, ProfileForm
 from .models import Profile
 from notifications.models import Notification
+from datetime import datetime
 
 
 def register_view(request):
@@ -22,8 +24,13 @@ def register_view(request):
                 message='Bienvenue chez NovaBank ! Votre compte a été créé avec succès.',
                 type='welcome',
             )
-            messages.success(request, 'Inscription réussie ! Bienvenue.')
-            return redirect('dashboard')
+            Notification.objects.create(
+                user=user,
+                message=f'Première connexion détectée le {datetime.now().strftime("%d/%m/%Y à %H:%M")}.',
+                type='login_alert',
+            )
+            messages.success(request, 'Inscription réussie ! Configurons votre espace bancaire.')
+            return redirect('onboarding')
     else:
         form = RegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -37,13 +44,15 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
+        # Inactive user: explicit "suspended" message
         if user is not None and not user.is_active:
-            messages.error(request, 'Ce compte utilisateur a été désactivé. Contactez le support.')
+            messages.error(request, 'Votre compte a été suspendu. Contactez le support.')
         elif user is not None:
             login(request, user)
             Notification.objects.create(
                 user=user,
-                message=f'Connexion détectée à votre compte.',
+                message=f'Connexion détectée le {datetime.now().strftime("%d/%m/%Y à %H:%M")}.',
                 type='login_alert',
             )
             if user.is_staff:
@@ -88,3 +97,23 @@ def profile_view(request):
             'address': profile.address,
         })
     return render(request, 'accounts/profile.html', {'form': form, 'profile': profile})
+
+
+@login_required
+def change_password_view(request):
+    """Vue de changement de mot de passe avec notification."""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            Notification.objects.create(
+                user=user,
+                message=f'Votre mot de passe a été modifié le {datetime.now().strftime("%d/%m/%Y à %H:%M")}.',
+                type='password_changed',
+            )
+            messages.success(request, 'Mot de passe modifié avec succès.')
+            return redirect('profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/change_password.html', {'form': form})

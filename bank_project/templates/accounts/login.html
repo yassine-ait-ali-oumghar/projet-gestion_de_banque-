@@ -1,48 +1,89 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Connexion | NovaBank{% endblock %}
 {% block content %}
-<div class="auth-page d-flex align-items-center justify-content-center">
-    <div class="container">
-        <div class="row justify-content-center align-items-center g-5">
-            <div class="col-lg-5 auth-illustration text-center">
-                <div class="illustration-wrapper p-4 rounded-4" style="background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,0,0,0.4)); border: 1px solid var(--nova-card-border); box-shadow: var(--nova-shadow);">
-                    <i class="bi bi-shield-lock" style="font-size: 6rem; color: var(--nova-gold); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(212,175,55,0.4));"></i>
-                    <h3 class="fw-bold text-white mt-4">Sécurité maximale</h3>
-                    <p class="text-secondary mb-0">Vos données sont protégées par un chiffrement de pointe et une authentification sécurisée.</p>
-                </div>
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+
+<div class="vault-auth">
+    <!-- Back button -->
+    <a href="{% url 'home' %}" class="vault-back">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Retour
+    </a>
+
+    <!-- ===== Left Panel — Branding ===== -->
+    <div class="vault-left">
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <div class="vault-left-inner">
+            <div class="vault-emblem">
+                <img src="{% static 'images/nova bank logo.png' %}" alt="NovaBank" height="90">
             </div>
-            <div class="col-md-6 col-lg-5">
-                <div class="card nova-card p-4">
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <i class="bi bi-bank2 display-4 text-gold"></i>
-                            <h3 class="fw-bold mt-2">Connexion</h3>
-                            <p class="text-secondary">Accédez à votre espace bancaire</p>
-                        </div>
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="username" class="form-label text-secondary">E-mail ou nom d'utilisateur</label>
-                                <input type="text" name="username" id="username" class="form-control nova-input" placeholder="admin@example.com ou votre pseudo" autocomplete="username" required autofocus>
-                            </div>
-                            <div class="mb-4">
-                                <label for="password" class="form-label text-secondary">Mot de passe</label>
-                                <div class="password-wrapper">
-                                    <input type="password" name="password" id="password" class="form-control nova-input" required>
-                                    <button type="button" class="password-toggle" style="border:0;outline:0;box-shadow:none;background:transparent;"><i class="bi bi-eye"></i></button>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
-                            </button>
-                        </form>
-                        <p class="text-center text-secondary mt-4 mb-0">
-                            Pas encore de compte ? <a href="{% url 'register' %}" class="text-gold fw-bold">S'inscrire</a>
-                        </p>
-                    </div>
+            <div class="vault-divider"></div>
+            <h1 class="vault-headline">Votre patrimoine.<br><span class="gold">Notre priorité.</span></h1>
+            <p class="vault-tagline">Accédez à une expérience bancaire d'exception. Sécurité, confidentialité et performance au service de votre avenir financier.</p>
+        </div>
+    </div>
+
+    <!-- ===== Right Panel — Login Form ===== -->
+    <div class="vault-right">
+        <div class="vault-form-card">
+            <div class="vault-stagger">
+                <div>
+                    <h2 class="vault-form-title">Connexion</h2>
+                    <p class="vault-form-subtitle">Accédez à votre espace privé</p>
                 </div>
+
+                <form method="post" autocomplete="on">
+                    {% csrf_token %}
+
+                    <div class="vault-field">
+                        <label for="username" class="vault-label">E-mail ou identifiant</label>
+                        <input type="text" name="username" id="username" class="vault-input" placeholder="votre@email.com" autocomplete="username" required autofocus>
+                    </div>
+
+                    <div class="vault-field">
+                        <label for="password" class="vault-label">Mot de passe</label>
+                        <div class="vault-pw-wrapper">
+                            <input type="password" name="password" id="password" class="vault-input" placeholder="••••••••" autocomplete="current-password" required>
+                            <button type="button" class="vault-pw-toggle" aria-label="Afficher le mot de passe">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="vault-btn">Se Connecter</button>
+                    </div>
+                </form>
+
+                <p class="vault-link-row">
+                    Pas encore de compte&nbsp;? <a href="{% url 'register' %}">Créer un compte</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    document.querySelectorAll('.vault-pw-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = this.closest('.vault-pw-wrapper').querySelector('input');
+            var icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        });
+    });
+})();
+</script>
 {% endblock %}

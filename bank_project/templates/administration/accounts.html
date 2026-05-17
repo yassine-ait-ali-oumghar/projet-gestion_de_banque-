@@ -49,12 +49,19 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
+                        {% if acc.is_active and acc.has_recent_tx %}
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" disabled
+                                title="Transaction récente (< 5 min). Réessayez dans quelques minutes.">
+                            <i class="bi bi-clock-history me-1"></i>Protégé
+                        </button>
+                        {% else %}
                         <form method="post" action="{% url 'adm_toggle_account' acc.pk %}" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm rounded-pill {% if acc.is_active %}btn-outline-warning{% else %}btn-success{% endif %}">
                                 {% if acc.is_active %}<i class="bi bi-lock me-1"></i>Geler{% else %}<i class="bi bi-unlock me-1"></i>Réactiver{% endif %}
                             </button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

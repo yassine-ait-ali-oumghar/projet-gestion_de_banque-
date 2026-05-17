@@ -8,28 +8,62 @@
             <div class="col-md-6">
                 <div class="card nova-card p-4">
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" id="transferForm">
                             {% csrf_token %}
+                            <input type="hidden" name="receiver" id="finalReceiver" value="">
+
+                            <!-- Type de Virement (Interne / Externe) -->
+                            <div class="mb-4">
+                                <label class="form-label text-secondary">Type de Virement</label>
+                                <div class="d-flex p-1 rounded-3" style="background:var(--bg-secondary); border:1px solid var(--border-color);">
+                                    <button type="button" id="btnTypeInterne" class="btn flex-fill rounded-2 py-2 fw-semibold active-type" style="font-size:0.9rem; transition:all 0.3s;">
+                                        <i class="bi bi-arrow-repeat me-2"></i>Interne (Mes comptes)
+                                    </button>
+                                    <button type="button" id="btnTypeExterne" class="btn flex-fill rounded-2 py-2 fw-semibold text-secondary" style="font-size:0.9rem; transition:all 0.3s;">
+                                        <i class="bi bi-globe me-2"></i>Externe (Nouveau bénéficiaire)
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="sender" class="form-label text-secondary">Compte Émetteur</label>
                                 <select name="sender" id="sender" class="form-select nova-input" required>
                                     {% for acc in accounts %}
-                                    <option value="{{ acc.id }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
+                                    <option value="{{ acc.id }}" data-number="{{ acc.account_number }}" data-balance="{{ acc.balance }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="receiver" class="form-label text-secondary">N° Compte Destinataire</label>
-                                <input type="text" name="receiver" id="receiver" class="form-control nova-input" placeholder="Ex: NB1234567890" pattern="[A-Z]{2}[0-9]+" title="2 lettres majuscules suivies de chiffres" required>
+
+                            <!-- Destinataire Interne -->
+                            <div class="mb-3" id="wrapperInterne">
+                                <label for="receiverInterne" class="form-label text-secondary">Compte Destinataire</label>
+                                <select id="receiverInterne" class="form-select nova-input">
+                                    <option value="" disabled selected>Sélectionnez un compte...</option>
+                                    {% for acc in accounts %}
+                                    <option value="{{ acc.account_number }}" class="opt-receiver">{{ acc.account_number }} — {{ acc.type }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
+
+                            <!-- Destinataire Externe -->
+                            <div class="mb-3" id="wrapperExterne" style="display:none;">
+                                <label for="receiverExterne" class="form-label text-secondary">N° Compte Bénéficiaire</label>
+                                <input type="text" id="receiverExterne" class="form-control nova-input" placeholder="Ex: NB1234567890" pattern="[A-Za-z]{2}[0-9]+" title="2 lettres suivies de chiffres">
+                            </div>
+
                             <div class="mb-4">
                                 <label for="amount" class="form-label text-secondary">Montant (MAD)</label>
                                 <input type="number" step="0.01" min="10" max="10000" name="amount" id="amount" class="form-control nova-input" placeholder="0.00" required>
                                 <div class="form-text" style="color:#888; font-size:0.82rem;">
                                     <i class="bi bi-info-circle me-1"></i>Min : <strong>10 MAD</strong> — Max : <strong>10 000 MAD</strong> par opération — Plafond journalier : <strong>20 000 MAD</strong>.
                                 </div>
+                                <div class="form-text" style="color:var(--nova-sapphire); font-size:0.82rem;">
+                                    <i class="bi bi-clock me-1"></i>Restant aujourd'hui : <strong>{{ daily_remaining|floatformat:2 }} MAD</strong>
+                                </div>
+                                <div id="amountError" class="text-danger small mt-1" style="display:none;"></div>
                             </div>
-                            <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-sapphire);color:#000;">
+
+                            <button type="button" id="transferBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-sapphire);color:#000;">
                                 <i class="bi bi-send me-2"></i>Effectuer le Virement
                             </button>
                         </form>
@@ -39,4 +73,144 @@
         </div>
     </div>
 </div>
+
+<!-- Confirmation Modal -->
+<div id="confirmOverlay" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2.5rem 2rem; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center;">
+        <div style="width:64px; height:64px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem;">
+            <i class="bi bi-arrow-left-right" style="font-size:2rem; color:#3b82f6;"></i>
+        </div>
+        <h5 style="font-weight:700; color:#1a1a1a; margin-bottom:0.5rem;">Confirmer le virement</h5>
+        <p style="color:#666; font-size:0.95rem;" id="confirmText"></p>
+        <div style="display:flex; gap:0.75rem; justify-content:center; margin-top:1.5rem;">
+            <button type="button" id="cancelBtn" style="padding:0.5rem 1.5rem; border-radius:50px; border:1px solid #ccc; background:#fff; color:#333; font-weight:600; cursor:pointer;">
+                <i class="bi bi-x-lg me-1"></i>Annuler
+            </button>
+            <button type="button" id="confirmBtn" style="padding:0.5rem 1.5rem; border-radius:50px; border:none; background:#3b82f6; color:#fff; font-weight:600; cursor:pointer;">
+                <i class="bi bi-check-lg me-1"></i>Confirmer
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.active-type {
+    background: var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    color: var(--text-primary) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('transferForm');
+    const finalReceiver = document.getElementById('finalReceiver');
+    
+    // Type toggles
+    const btnInterne = document.getElementById('btnTypeInterne');
+    const btnExterne = document.getElementById('btnTypeExterne');
+    const wrapInterne = document.getElementById('wrapperInterne');
+    const wrapExterne = document.getElementById('wrapperExterne');
+    
+    // Inputs
+    const senderSelect = document.getElementById('sender');
+    const receiverInterne = document.getElementById('receiverInterne');
+    const receiverExterne = document.getElementById('receiverExterne');
+    const amountInput = document.getElementById('amount');
+    
+    // Others
+    const amountError = document.getElementById('amountError');
+    const transferBtn = document.getElementById('transferBtn');
+    const overlay = document.getElementById('confirmOverlay');
+    const confirmText = document.getElementById('confirmText');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    let currentType = 'interne';
+
+    function switchType(type) {
+        currentType = type;
+        if (type === 'interne') {
+            btnInterne.classList.add('active-type');
+            btnInterne.classList.remove('text-secondary');
+            btnExterne.classList.remove('active-type');
+            btnExterne.classList.add('text-secondary');
+            wrapInterne.style.display = 'block';
+            wrapExterne.style.display = 'none';
+            receiverExterne.required = false;
+            receiverInterne.required = true;
+        } else {
+            btnExterne.classList.add('active-type');
+            btnExterne.classList.remove('text-secondary');
+            btnInterne.classList.remove('active-type');
+            btnInterne.classList.add('text-secondary');
+            wrapExterne.style.display = 'block';
+            wrapInterne.style.display = 'none';
+            receiverInterne.required = false;
+            receiverExterne.required = true;
+        }
+    }
+
+    btnInterne.addEventListener('click', () => switchType('interne'));
+    btnExterne.addEventListener('click', () => switchType('externe'));
+    switchType('interne'); // init
+
+    // Prevent selecting the same account in internal transfer
+    function updateInterneOptions() {
+        const senderNum = senderSelect.options[senderSelect.selectedIndex].dataset.number;
+        const opts = receiverInterne.querySelectorAll('.opt-receiver');
+        opts.forEach(opt => {
+            if (opt.value === senderNum) {
+                opt.disabled = true;
+                if (receiverInterne.value === senderNum) receiverInterne.value = '';
+            } else {
+                opt.disabled = false;
+            }
+        });
+    }
+    senderSelect.addEventListener('change', updateInterneOptions);
+    updateInterneOptions();
+
+    // Frontend validation
+    amountInput.addEventListener('input', function() {
+        const val = parseFloat(this.value);
+        const sel = senderSelect.selectedOptions[0];
+        const balance = parseFloat(sel.dataset.balance);
+        if (isNaN(val) || val < 10) {
+            amountError.textContent = 'Le montant minimum est de 10 MAD.';
+            amountError.style.display = 'block';
+        } else if (val > 10000) {
+            amountError.textContent = 'Le montant maximum est de 10 000 MAD.';
+            amountError.style.display = 'block';
+        } else if (val > balance) {
+            amountError.textContent = 'Solde insuffisant (' + balance.toFixed(2) + ' MAD disponibles).';
+            amountError.style.display = 'block';
+        } else {
+            amountError.style.display = 'none';
+        }
+    });
+
+    transferBtn.addEventListener('click', function() {
+        // Set final receiver value before validation
+        if (currentType === 'interne') {
+            finalReceiver.value = receiverInterne.value;
+        } else {
+            finalReceiver.value = receiverExterne.value.trim().toUpperCase();
+        }
+
+        const val = parseFloat(amountInput.value);
+        if (!form.checkValidity() || isNaN(val) || val < 10 || val > 10000 || !finalReceiver.value) {
+            form.reportValidity();
+            return;
+        }
+
+        confirmText.innerHTML = 'Vous êtes sur le point de virer <strong>' + val.toFixed(2) + ' MAD</strong> vers <strong>' + finalReceiver.value + '</strong>. Confirmer ?';
+        overlay.style.display = 'flex';
+    });
+
+    cancelBtn.addEventListener('click', function() { overlay.style.display = 'none'; });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.style.display = 'none'; });
+    confirmBtn.addEventListener('click', function() { form.submit(); });
+});
+</script>
 {% endblock %}

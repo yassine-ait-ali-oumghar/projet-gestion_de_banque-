@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Premier Dépôt | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <!-- Success Header -->
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                         style="width:72px;height:72px;background:var(--nova-emerald-soft);">
+                        <i class="bi bi-check-circle-fill" style="font-size:2rem;color:var(--nova-emerald);"></i>
+                    </div>
+                    <h3 class="fw-bold mb-2" style="color:var(--text-primary);">Tout est prêt !</h3>
+                    <p class="text-secondary mb-0" style="font-size:0.95rem;">
+                        Votre compte <strong class="text-gold">{{ account.account_number }}</strong> est actif.
+                        {% if card %}
+                        <br>Votre carte <strong class="text-gold">•••• {{ card.card_number|slice:"-4:" }}</strong> est activée.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- First Deposit Card -->
+                <div class="card nova-card p-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h5 class="fw-bold" style="color:var(--text-primary);">
+                                <i class="bi bi-plus-circle me-2" style="color:var(--nova-emerald);"></i>Effectuez votre premier dépôt
+                            </h5>
+                            <p class="text-secondary small">Alimentez votre compte pour commencer à utiliser NovaBank.</p>
+                        </div>
+
+                        <form method="post" id="firstDepositForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="account" value="{{ account.id }}">
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary" style="font-size:0.85rem;">Compte</label>
+                                <div class="nova-input form-control" style="background:var(--bg-secondary);cursor:default;">
+                                    <i class="bi bi-bank me-2 text-gold"></i>{{ account.account_number }} — {{ account.type }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="amount" class="form-label text-secondary" style="font-size:0.85rem;">Montant (MAD)</label>
+                                <input type="number" step="0.01" min="10" max="100000" name="amount" id="amount"
+                                       class="form-control nova-input" placeholder="Ex: 1000.00" required
+                                       style="font-size:1.2rem;text-align:center;font-weight:600;">
+                                <div class="form-text text-secondary" style="font-size:0.8rem;">
+                                    <i class="bi bi-info-circle me-1"></i>Min : <strong>10 MAD</strong> — Max : <strong>100 000 MAD</strong>
+                                </div>
+                            </div>
+
+                            <!-- Quick Amount Buttons -->
+                            <div class="d-flex gap-2 mb-4 flex-wrap justify-content-center">
+                                <button type="button" class="btn btn-outline-warning rounded-pill px-3 py-1 quick-amount" data-amount="100" style="font-size:0.85rem;">100 MAD</button>
+                                <button type="button" class="btn btn-outline-warning rounded-pill px-3 py-1 quick-amount" data-amount="500" style="font-size:0.85rem;">500 MAD</button>
+                                <button type="button" class="btn btn-outline-warning rounded-pill px-3 py-1 quick-amount" data-amount="1000" style="font-size:0.85rem;">1 000 MAD</button>
+                                <button type="button" class="btn btn-outline-warning rounded-pill px-3 py-1 quick-amount" data-amount="5000" style="font-size:0.85rem;">5 000 MAD</button>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-emerald);border-color:var(--nova-emerald);color:#000;">
+                                <i class="bi bi-check-circle me-2"></i>Déposer
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a href="{% url 'dashboard' %}" class="text-secondary text-decoration-none" style="font-size:0.85rem;">
+                                <i class="bi bi-arrow-right me-1"></i>Passer cette étape et aller au dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    document.querySelectorAll('.quick-amount').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            amountInput.value = this.dataset.amount;
+            amountInput.focus();
+            document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            this.style.background = 'var(--gold)';
+            this.style.color = '#000';
+        });
+    });
+});
+</script>
+{% endblock %}

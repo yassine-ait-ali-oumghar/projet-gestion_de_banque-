@@ -57,7 +57,11 @@
                         </form>
                         <form method="post" action="{% url 'adm_delete_user' u.pk %}" class="d-inline delete-form">
                             {% csrf_token %}
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill btn-delete" data-username="{{ u.username }}">
+                            <input type="hidden" name="confirm_delete" value="yes">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill btn-delete"
+                                    data-username="{{ u.username }}"
+                                    data-accounts="{{ u.active_accounts_count }}"
+                                    data-balance="{{ u.total_balance|floatformat:2 }}">
                                 <i class="bi bi-trash me-1"></i>Supprimer
                             </button>
                         </form>
@@ -88,7 +92,7 @@
 </nav>
 {% endif %}
 
-<!-- Delete confirmation overlay -->
+<!-- Delete confirmation overlay with balance/accounts warning -->
 <div id="deleteOverlay" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:2.5rem 2rem; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center; position:relative;">
         <div style="width:64px; height:64px; border-radius:50%; background:#fff3f3; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem;">
@@ -97,6 +101,12 @@
         <h5 style="font-weight:700; color:#1a1a1a; margin-bottom:0.5rem;">Confirmer la suppression</h5>
         <p style="color:#666; margin-bottom:0.25rem; font-size:0.95rem;">Vous êtes sur le point de supprimer l'utilisateur</p>
         <p style="font-weight:600; font-size:1.15rem; color:#1a1a1a; margin-bottom:0.5rem;">« <span id="deleteUserName"></span> »</p>
+        <div id="balanceWarning" style="display:none; background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:0.8rem; margin-bottom:0.75rem; text-align:left;">
+            <p style="color:#ea580c; font-size:0.85rem; margin-bottom:0; font-weight:600;">
+                <i class="bi bi-exclamation-triangle me-1"></i>Attention :
+            </p>
+            <p style="color:#9a3412; font-size:0.85rem; margin-bottom:0;" id="balanceWarningText"></p>
+        </div>
         <p style="color:#dc3545; font-size:0.85rem; margin-bottom:1.5rem;">
             <i class="bi bi-info-circle me-1"></i>Cette action est irréversible.
         </p>
@@ -115,6 +125,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('deleteOverlay');
     const userNameSpan = document.getElementById('deleteUserName');
+    const balanceWarning = document.getElementById('balanceWarning');
+    const balanceWarningText = document.getElementById('balanceWarningText');
     const confirmBtn = document.getElementById('confirmDeleteBtn');
     const cancelBtn = document.getElementById('cancelDeleteBtn');
     let activeForm = null;
@@ -123,6 +135,17 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             activeForm = btn.closest('.delete-form');
             userNameSpan.textContent = btn.dataset.username;
+
+            const accounts = parseInt(btn.dataset.accounts) || 0;
+            const balance = parseFloat(btn.dataset.balance) || 0;
+
+            if (accounts > 0 || balance > 0) {
+                balanceWarningText.textContent = 'Cet utilisateur possède ' + accounts + ' compte(s) actif(s) avec un solde total de ' + balance.toFixed(2) + ' MAD.';
+                balanceWarning.style.display = 'block';
+            } else {
+                balanceWarning.style.display = 'none';
+            }
+
             overlay.style.display = 'flex';
         });
     });

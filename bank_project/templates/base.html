@@ -16,8 +16,8 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top nova-nav w-100" aria-label="Navigation principale">
       <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-            <i class="bi bi-bank2 me-2"></i>NovaBank
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'images/nova bank logo.png' %}" alt="NovaBank" height="70" class="me-2">
         </a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navItems">
           <span class="navbar-toggler-icon"></span>
@@ -92,7 +92,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 mb-3">
-                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-bank2 me-2 text-gold"></i>NovaBank</h5>
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center"><img src="{% static 'images/nova bank logo.png' %}" alt="NovaBank" height="50" class="me-2"></h5>
                     <p class="text-secondary mb-0" style="font-size:0.9rem;">La banque intelligente conçue pour le monde moderne. Sécurisée, rapide et élégante.</p>
                 </div>
                 <div class="col-6 col-lg-2">

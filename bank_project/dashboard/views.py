@@ -35,7 +35,13 @@ def dashboard_view(request):
     ).count()
 
     # Card count
+    from datetime import date as dt_date
+    today = dt_date.today()
     card_count = Card.objects.filter(account__in=user_accounts, status='active').count()
+    has_active_card = Card.objects.filter(
+        account__in=user_accounts, status='active', expiration_date__gte=today
+    ).exists()
+    has_active_account = accounts.filter(is_active=True).exists()
 
     # Monthly data for chart (last 6 months)
     now = datetime.now()
@@ -74,6 +80,8 @@ def dashboard_view(request):
         'total_withdrawals': total_withdrawals,
         'total_transfers': total_transfers,
         'card_count': card_count,
+        'has_active_card': has_active_card,
+        'has_active_account': has_active_account,
         'greeting': greeting,
         'chart_labels': chart_labels,
         'chart_deposits': chart_deposits,

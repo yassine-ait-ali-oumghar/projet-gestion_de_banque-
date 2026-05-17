@@ -24,6 +24,10 @@
                     class="btn {% if tx_type == 'transfer' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
                     <i class="bi bi-arrow-left-right me-1"></i>Virements
                 </a>
+                <a href="{% url 'transactions' %}?type=card_payment"
+                    class="btn {% if tx_type == 'card_payment' %}btn-warning{% else %}btn-outline-warning{% endif %} rounded-pill px-3 btn-sm">
+                    <i class="bi bi-credit-card me-1"></i>Paiements Carte
+                </a>
             </div>
         </div>
 
@@ -50,15 +54,19 @@
                                     <span class="badge bg-success rounded-pill">Dépôt</span>
                                     {% elif tx.type == 'withdrawal' %}
                                     <span class="badge bg-danger rounded-pill">Retrait</span>
-                                    {% else %}
+                                    {% elif tx.type == 'card_payment' %}
+                                    <span class="badge bg-warning text-dark rounded-pill">Paiement Carte</span>
+                                    {% elif tx.type == 'transfer' %}
                                     <span class="badge bg-info rounded-pill">Virement</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary rounded-pill">{{ tx.type }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="font-monospace" style="font-size:0.82rem;">{% if tx.sender %}{{ tx.sender.account_number }}{% else %}—{% endif %}</td>
                                 <td class="font-monospace" style="font-size:0.82rem;">{% if tx.receiver %}{{ tx.receiver.account_number }}{% else %}—{% endif %}</td>
                                 <td
-                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' %}amount-negative{% else %}amount-transfer{% endif %}">
-                                    {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' %}-{% endif %}{{ tx.amount|floatformat:2 }} MAD
+                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' or tx.type == 'card_payment' %}amount-negative{% else %}amount-transfer{% endif %}">
+                                    {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' or tx.type == 'card_payment' %}-{% endif %}{{ tx.amount|floatformat:2 }} MAD
                                 </td>
                                 <td><span class="badge bg-success rounded-pill">{{ tx.status }}</span></td>
                             </tr>

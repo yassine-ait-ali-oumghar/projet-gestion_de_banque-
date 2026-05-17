@@ -12,13 +12,26 @@
                             <div class="card-chip mx-auto mb-3" style="width:60px;height:45px;border-radius:8px;"></div>
                             <p class="text-secondary">Sélectionnez le compte auquel associer votre nouvelle carte.</p>
                         </div>
+
+                        {% if accounts %}
+                        <div class="alert alert-info" style="background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.2); color:#93c5fd; border-radius:12px; font-size:0.88rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <strong>Conditions requises :</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Le compte doit avoir un solde minimum de <strong>{{ min_balance|floatformat:0 }} MAD</strong></li>
+                                <li>Une seule carte par compte (supprimez l'existante pour en demander une autre)</li>
+                            </ul>
+                        </div>
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-4">
                                 <label for="account" class="form-label text-secondary">Compte</label>
                                 <select name="account" id="account" class="form-select nova-input" required>
                                     {% for acc in accounts %}
-                                    <option value="{{ acc.id }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
+                                    <option value="{{ acc.id }}" {% if acc.balance < min_balance %}disabled{% endif %}>
+                                        {{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD
+                                        {% if acc.balance < min_balance %} (solde insuffisant){% endif %}
+                                    </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -26,6 +39,14 @@
                                 <i class="bi bi-credit-card me-2"></i>Demander la Carte
                             </button>
                         </form>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox display-4 text-secondary d-block mb-3"></i>
+                            <p class="text-secondary">Aucun compte éligible.</p>
+                            <p class="text-secondary small">Tous vos comptes possèdent déjà une carte, ou vous n'avez aucun compte actif.</p>
+                            <a href="{% url 'cards' %}" class="btn btn-outline-warning rounded-pill px-4 mt-2">Retour aux cartes</a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

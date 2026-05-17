@@ -1,4 +1,5 @@
 from functools import partial
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,6 +12,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from banking.models import Account, Transaction
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -83,6 +85,12 @@ def users_list(request):
         )
     paginator = Paginator(queryset, PAGE_SIZE_USERS)
     page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Annotate each user with account/balance data for the delete warning
+    for u in page_obj:
+        u.active_accounts_count = Account.objects.filter(user=u, is_active=True).count()
+        u.total_balance = Account.objects.filter(user=u).aggregate(s=Sum('balance'))['s'] or 0
+
     context = {
         'page_obj': page_obj,
         'q': q,
@@ -109,6 +117,15 @@ def accounts_panel(request):
         queryset = queryset.filter(is_active=False)
     paginator = Paginator(queryset, PAGE_SIZE_ACCOUNTS)
     page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Annotate each account with recent transaction info for the 5-min guard
+    cutoff = timezone.now() - timedelta(minutes=5)
+    for acc in page_obj:
+        acc.has_recent_tx = Transaction.objects.filter(
+            Q(sender=acc) | Q(receiver=acc),
+            date__gte=cutoff,
+        ).exists()
+
     context = {
         'page_obj': page_obj,
         'q': q,
@@ -158,6 +175,7 @@ def toggle_user_active(request, pk):
         messages.error(request, 'Seuls les super-utilisateurs peuvent modifier ce compte.')
         return redirect_to
 
+    # Last superuser protection — model-level enforcement
     if target.is_superuser and target.is_active:
         other_active_su = User.objects.filter(is_superuser=True, is_active=True).exclude(pk=target.pk).exists()
         if not other_active_su:
@@ -167,6 +185,21 @@ def toggle_user_active(request, pk):
     target.is_active = not target.is_active
     target.save(update_fields=['is_active'])
     state = 'activé' if target.is_active else 'désactivé'
+
+    # Send notification to the user about their account status change
+    if not target.is_active:
+        Notification.objects.create(
+            user=target,
+            message='Votre compte a été désactivé par un administrateur. Contactez le support.',
+            type='account_deactivated',
+        )
+    else:
+        Notification.objects.create(
+            user=target,
+            message='Votre compte a été réactivé par un administrateur.',
+            type='account_reactivated',
+        )
+
     messages.success(request, f'Utilisateur « {target.username} » {state}.')
     return redirect_to
 
@@ -185,11 +218,26 @@ def delete_user(request, pk):
         messages.error(request, 'Seuls les super-utilisateurs peuvent supprimer ce compte.')
         return redirect_to
 
+    # Last superuser protection
     if target.is_superuser:
         other_su = User.objects.filter(is_superuser=True).exclude(pk=target.pk).exists()
         if not other_su:
             messages.error(request, 'Impossible de supprimer le dernier super-utilisateur.')
             return redirect_to
+
+    # Check for active accounts or positive balance — require explicit confirmation
+    active_accounts = Account.objects.filter(user=target, is_active=True)
+    total_balance = Account.objects.filter(user=target).aggregate(s=Sum('balance'))['s'] or 0
+
+    confirm = request.POST.get('confirm_delete')
+    if (active_accounts.exists() or total_balance > 0) and confirm != 'yes':
+        messages.warning(
+            request,
+            f'⚠️ L\'utilisateur « {target.username} » possède '
+            f'{active_accounts.count()} compte(s) actif(s) avec un solde total de '
+            f'{total_balance:.2f} MAD. Confirmez la suppression.'
+        )
+        return redirect_to
 
     username = target.username
     target.delete()
@@ -201,8 +249,40 @@ def delete_user(request, pk):
 @require_POST
 def toggle_account_active(request, pk):
     account = get_object_or_404(Account, pk=pk)
+
+    # Admin safeguard: block deactivation if recent transaction (last 5 minutes)
+    if account.is_active:
+        cutoff = timezone.now() - timedelta(minutes=5)
+        has_recent_tx = Transaction.objects.filter(
+            Q(sender=account) | Q(receiver=account),
+            date__gte=cutoff,
+        ).exists()
+        if has_recent_tx:
+            messages.error(
+                request,
+                f'Impossible de désactiver le compte {account.account_number} : '
+                f'une transaction a été effectuée dans les 5 dernières minutes. '
+                f'Réessayez dans quelques minutes.'
+            )
+            return redirect('adm_accounts')
+
     account.is_active = not account.is_active
     account.save(update_fields=['is_active'])
     state = 'activé' if account.is_active else 'désactivé'
+
+    # Notification to account owner
+    if not account.is_active:
+        Notification.objects.create(
+            user=account.user,
+            message=f'Votre compte {account.account_number} a été désactivé par un administrateur.',
+            type='account_deactivated',
+        )
+    else:
+        Notification.objects.create(
+            user=account.user,
+            message=f'Votre compte {account.account_number} a été réactivé.',
+            type='account_reactivated',
+        )
+
     messages.success(request, f'Compte « {account.account_number} » {state}.')
     return redirect('adm_accounts')

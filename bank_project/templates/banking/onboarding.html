@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}Bienvenue | NovaBank{% endblock %}
+{% block content %}
+<div class="dashboard-page page-wrapper">
+    <div class="container py-5">
+        <!-- Welcome Header -->
+        <div class="text-center mb-5">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                 style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));box-shadow:0 8px 32px rgba(245,166,35,0.3);">
+                <i class="bi bi-stars" style="font-size:2rem;color:#000;"></i>
+            </div>
+            <h2 class="fw-bold mb-2" style="color:var(--text-primary);">
+                Bienvenue chez NovaBank, {{ user.first_name }} !
+            </h2>
+            <p class="text-secondary mb-0" style="max-width:500px;margin:0 auto;">
+                Configurez votre espace bancaire en quelques instants.<br>
+                Créez votre premier compte et obtenez votre carte.
+            </p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mb-5">
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                     style="width:36px;height:36px;background:var(--gold);color:#000;font-size:0.85rem;" id="stepBadge1">1</div>
+                <span class="fw-semibold" style="color:var(--text-primary);font-size:0.9rem;">Compte</span>
+            </div>
+            <div style="width:60px;height:2px;background:var(--border-color);border-radius:2px;" id="stepLine"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                     style="width:36px;height:36px;background:var(--border-color);color:var(--text-secondary);font-size:0.85rem;transition:all 0.3s;" id="stepBadge2">2</div>
+                <span class="fw-semibold" style="color:var(--text-secondary);font-size:0.9rem;" id="stepLabel2">Carte</span>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <!-- STEP 1: Create Account -->
+                <div id="step1" class="card nova-card p-4" style="transition:all 0.4s ease;">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="feature-icon mx-auto mb-3" style="width:64px;height:64px;font-size:1.8rem;">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            <h5 class="fw-bold" style="color:var(--text-primary);">Ouvrir votre compte bancaire</h5>
+                            <p class="text-secondary small mb-0">Choisissez le type de compte qui vous convient.</p>
+                        </div>
+
+                        <!-- Account Type Cards -->
+                        <div class="d-flex flex-column gap-3 mb-4" id="typeSelector">
+                            <label class="card nova-card p-3 d-flex align-items-center gap-3 account-type-option"
+                                   style="cursor:pointer;border:2px solid var(--gold) !important;" data-type="Courant" id="optCourant">
+                                <input type="radio" name="account_type" value="Courant" checked class="d-none">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle"
+                                     style="width:44px;height:44px;background:var(--nova-emerald-soft);flex-shrink:0;">
+                                    <i class="bi bi-wallet2" style="color:var(--nova-emerald);font-size:1.2rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold" style="color:var(--text-primary);">Compte Courant</div>
+                                    <div class="text-secondary" style="font-size:0.82rem;">Usage quotidien — dépôts, retraits, virements</div>
+                                </div>
+                                <i class="bi bi-check-circle-fill text-gold" style="font-size:1.3rem;" id="checkCourant"></i>
+                            </label>
+
+                            <label class="card nova-card p-3 d-flex align-items-center gap-3 account-type-option"
+                                   style="cursor:pointer;" data-type="Épargne" id="optEpargne">
+                                <input type="radio" name="account_type" value="Épargne" class="d-none">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle"
+                                     style="width:44px;height:44px;background:var(--nova-sapphire-soft);flex-shrink:0;">
+                                    <i class="bi bi-piggy-bank" style="color:var(--nova-sapphire);font-size:1.2rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold" style="color:var(--text-primary);">Compte Épargne</div>
+                                    <div class="text-secondary" style="font-size:0.82rem;">Épargne avec solde minimum de 100 MAD</div>
+                                </div>
+                                <i class="bi bi-circle text-secondary" style="font-size:1.3rem;" id="checkEpargne"></i>
+                            </label>
+                        </div>
+
+                        <button type="button" id="btnStep1" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
+                            <i class="bi bi-arrow-right me-2"></i>Créer et Continuer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Request Card -->
+                <div id="step2" class="card nova-card p-4" style="display:none;transition:all 0.4s ease;">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="feature-icon mx-auto mb-3" style="width:64px;height:64px;font-size:1.8rem;background:rgba(245,166,35,0.1);">
+                                <i class="bi bi-credit-card-2-front" style="color:var(--gold);"></i>
+                            </div>
+                            <h5 class="fw-bold" style="color:var(--text-primary);">Demander votre carte bancaire</h5>
+                            <p class="text-secondary small mb-0">
+                                Votre compte <strong id="newAccountNumber" class="text-gold"></strong> a été créé !<br>
+                                Une carte vous permettra d'effectuer des retraits et des paiements.
+                            </p>
+                        </div>
+
+                        <!-- Card Preview -->
+                        <div class="mx-auto mb-4" style="max-width:340px;">
+                            <div class="bank-card-visual rounded-4 p-4 position-relative"
+                                 style="aspect-ratio:1.6;background:linear-gradient(135deg,#1a1a1a 0%,#0d0d0d 50%,#1a1a1a 100%);border:1px solid rgba(245,166,35,0.3);box-shadow:0 12px 40px rgba(0,0,0,0.4);">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:2px;">NOVABANK</div>
+                                    <i class="bi bi-wifi" style="color:rgba(255,255,255,0.4);font-size:1.2rem;transform:rotate(90deg);"></i>
+                                </div>
+                                <div class="card-chip mt-3" style="width:45px;height:32px;"></div>
+                                <div style="color:rgba(255,255,255,0.6);font-size:1rem;letter-spacing:3px;margin-top:1.2rem;font-family:monospace;">
+                                    •••• •••• •••• ••••
+                                </div>
+                                <div class="d-flex justify-content-between align-items-end mt-2">
+                                    <div>
+                                        <div style="font-size:0.6rem;color:rgba(255,255,255,0.3);text-transform:uppercase;">Titulaire</div>
+                                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);">{{ user.first_name|upper }} {{ user.last_name|upper }}</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-size:0.6rem;color:rgba(255,255,255,0.3);">EXPIRE</div>
+                                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);">--/--</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:12px;color:var(--text-secondary);font-size:0.85rem;">
+                            <i class="bi bi-info-circle me-1" style="color:var(--nova-sapphire);"></i>
+                            La carte sera activée automatiquement et liée à votre nouveau compte.
+                        </div>
+
+                        <form method="post" id="onboardingForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="account_type" id="hiddenAccountType" value="Courant">
+                            <input type="hidden" name="request_card" id="hiddenRequestCard" value="yes">
+                            <div class="d-flex flex-column gap-2">
+                                <button type="submit" name="action" value="create_with_card" class="btn btn-warning w-100 rounded-pill py-2 fw-bold">
+                                    <i class="bi bi-credit-card me-2"></i>Créer le compte + Demander la carte
+                                </button>
+                                <button type="submit" name="action" value="create_without_card" class="btn btn-outline-warning w-100 rounded-pill py-2 fw-semibold" style="font-size:0.9rem;">
+                                    <i class="bi bi-arrow-right me-2"></i>Créer le compte sans carte
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const btnStep1 = document.getElementById('btnStep1');
+    const stepBadge2 = document.getElementById('stepBadge2');
+    const stepLabel2 = document.getElementById('stepLabel2');
+    const stepLine = document.getElementById('stepLine');
+    const hiddenType = document.getElementById('hiddenAccountType');
+    const optCourant = document.getElementById('optCourant');
+    const optEpargne = document.getElementById('optEpargne');
+    const checkCourant = document.getElementById('checkCourant');
+    const checkEpargne = document.getElementById('checkEpargne');
+
+    let selectedType = 'Courant';
+
+    // Type selector logic
+    document.querySelectorAll('.account-type-option').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+            selectedType = this.dataset.type;
+            document.querySelectorAll('.account-type-option').forEach(function(o) {
+                o.style.borderColor = 'var(--border-color)';
+            });
+            this.style.borderColor = 'var(--gold)';
+            if (selectedType === 'Courant') {
+                checkCourant.className = 'bi bi-check-circle-fill text-gold';
+                checkEpargne.className = 'bi bi-circle text-secondary';
+            } else {
+                checkEpargne.className = 'bi bi-check-circle-fill text-gold';
+                checkCourant.className = 'bi bi-circle text-secondary';
+            }
+            hiddenType.value = selectedType;
+        });
+    });
+
+    // Step 1 → Step 2 transition
+    btnStep1.addEventListener('click', function() {
+        hiddenType.value = selectedType;
+        step1.style.opacity = '0';
+        step1.style.transform = 'translateX(-30px)';
+        setTimeout(function() {
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            step2.style.opacity = '0';
+            step2.style.transform = 'translateX(30px)';
+            setTimeout(function() {
+                step2.style.opacity = '1';
+                step2.style.transform = 'translateX(0)';
+            }, 50);
+            // Update step indicator
+            stepBadge2.style.background = 'var(--gold)';
+            stepBadge2.style.color = '#000';
+            stepLabel2.style.color = 'var(--text-primary)';
+            stepLine.style.background = 'var(--gold)';
+        }, 300);
+    });
+});
+</script>
+{% endblock %}

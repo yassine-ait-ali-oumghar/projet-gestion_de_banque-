@@ -1,0 +1,566 @@
+/* ===================================================
+   NovaBank — Light Premium Auth Theme
+   Aligned with the homepage warm off-white aesthetic
+   =================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* --- Hide navbar & footer for immersive auth --- */
+body:has(.vault-auth) .nova-nav,
+body:has(.vault-auth) .nova-footer {
+    display: none !important;
+}
+
+body:has(.vault-auth) .app-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 100vh;
+}
+
+body:has(.vault-auth) {
+    background: #F7F4F0 !important;
+}
+
+/* --- Custom Properties --- */
+.vault-auth {
+    --va-bg: #F7F4F0;
+    --va-bg-left: #F2EEE8;
+    --va-card: #FFFFFF;
+    --va-gold: #E6AA3A;
+    --va-gold-dark: #C9922A;
+    --va-gold-glow: rgba(230, 170, 58, 0.18);
+    --va-gold-soft: rgba(230, 170, 58, 0.10);
+    --va-heading: #111111;
+    --va-body: #555555;
+    --va-label: #888888;
+    --va-input-bg: #F9F8F6;
+    --va-input-border: #E8E4DE;
+    --va-border-light: rgba(0, 0, 0, 0.06);
+    --va-radius: 14px;
+    --va-radius-pill: 50px;
+    --va-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+    --va-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Main Layout --- */
+.vault-auth {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--va-bg);
+    position: relative;
+    z-index: 2;
+    color: var(--va-body);
+}
+
+/* ===================================================
+   BACK BUTTON — top-left
+   =================================================== */
+.vault-back {
+    position: absolute;
+    top: 1.8rem;
+    left: 2rem;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #999;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.vault-back svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.25s ease;
+}
+
+.vault-back:hover {
+    color: var(--va-gold);
+}
+
+.vault-back:hover svg {
+    transform: translateX(-3px);
+}
+
+/* ===================================================
+   LEFT PANEL — Warm branding
+   =================================================== */
+.vault-left {
+    flex: 0 0 44%;
+    max-width: 44%;
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 3rem;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 30% 25%, rgba(230, 170, 58, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, rgba(230, 170, 58, 0.05) 0%, transparent 50%),
+        var(--va-bg-left);
+}
+
+/* Subtle right border */
+.vault-left::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: var(--va-border-light);
+}
+
+/* --- Sparkle dots (gold scattered decorations) --- */
+.vault-sparkle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--va-gold);
+    pointer-events: none;
+    opacity: 0;
+    animation: sparkleIn 1.5s ease forwards;
+}
+
+@keyframes sparkleIn {
+    0% { opacity: 0; transform: scale(0); }
+    60% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.55; transform: scale(1); }
+}
+
+.vault-sparkle:nth-child(1) { width: 5px; height: 5px; top: 12%; left: 18%; animation-delay: 0.3s; opacity: 0.35; }
+.vault-sparkle:nth-child(2) { width: 3px; height: 3px; top: 22%; right: 14%; animation-delay: 0.6s; opacity: 0.25; }
+.vault-sparkle:nth-child(3) { width: 6px; height: 6px; bottom: 28%; left: 12%; animation-delay: 0.8s; opacity: 0.3; }
+.vault-sparkle:nth-child(4) { width: 4px; height: 4px; bottom: 15%; right: 20%; animation-delay: 1.0s; opacity: 0.4; }
+.vault-sparkle:nth-child(5) { width: 3px; height: 3px; top: 42%; left: 8%; animation-delay: 0.5s; opacity: 0.2; }
+.vault-sparkle:nth-child(6) { width: 4px; height: 4px; top: 68%; right: 10%; animation-delay: 1.2s; opacity: 0.3; }
+
+/* Floating emblem */
+.vault-emblem {
+    position: relative;
+    animation: vaultFloat 7s ease-in-out infinite;
+    margin-bottom: 0.5rem;
+}
+
+.vault-emblem img {
+    filter: drop-shadow(0 4px 20px rgba(230, 170, 58, 0.18));
+}
+
+@keyframes vaultFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Gold divider */
+.vault-divider {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--va-gold), transparent);
+    margin: 1.4rem auto 1.6rem;
+    border-radius: 1px;
+    opacity: 0.6;
+}
+
+/* Serif headline */
+.vault-headline {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--va-heading);
+    line-height: 1.22;
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+.vault-headline .gold {
+    color: var(--va-gold);
+    font-style: italic;
+}
+
+/* Tagline */
+.vault-tagline {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    color: var(--va-body);
+    text-align: center;
+    margin-top: 1rem;
+    max-width: 320px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    opacity: 0.75;
+}
+
+/* Left content fade-in */
+.vault-left-inner {
+    opacity: 0;
+    transform: translateY(22px);
+    animation: vaultSlideIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===================================================
+   RIGHT PANEL — Form area
+   =================================================== */
+.vault-right {
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background: var(--va-bg);
+}
+
+.vault-form-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--va-card);
+    border: 1px solid var(--va-border-light);
+    border-radius: var(--va-radius);
+    padding: 2.8rem 2.5rem;
+    box-shadow: var(--va-shadow);
+}
+
+.vault-form-card.vault-card-wide {
+    max-width: 500px;
+    padding: 2.5rem 2.2rem;
+}
+
+/* --- Form Title --- */
+.vault-form-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--va-heading);
+    margin-bottom: 0.15rem;
+    letter-spacing: -0.02em;
+}
+
+.vault-form-subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--va-label);
+    margin-bottom: 1.8rem;
+}
+
+/* --- Labels --- */
+.vault-label {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--va-label);
+    margin-bottom: 0.4rem;
+}
+
+/* --- Inputs --- */
+.vault-input {
+    width: 100%;
+    background: var(--va-input-bg);
+    border: 1px solid var(--va-input-border);
+    border-radius: 10px;
+    color: var(--va-heading);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    padding: 0.78rem 1rem;
+    transition: var(--va-transition);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.vault-input::placeholder {
+    color: #bbb;
+    font-weight: 400;
+}
+
+.vault-input:focus {
+    border-color: var(--va-gold);
+    box-shadow: 0 0 0 3px var(--va-gold-glow);
+    background: #FFFFFF;
+}
+
+/* --- Password Wrapper --- */
+.vault-pw-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vault-pw-wrapper .vault-input {
+    padding-right: 3rem;
+}
+
+.vault-pw-toggle {
+    position: absolute;
+    right: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    border: none !important;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem 0.3rem;
+    transition: color 0.2s ease;
+    outline: none !important;
+    box-shadow: none !important;
+    line-height: 1;
+    z-index: 3;
+}
+
+.vault-pw-toggle:hover {
+    color: var(--va-gold) !important;
+}
+
+/* --- Password Strength Bar --- */
+.vault-strength-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: #EDEBE7;
+    margin-top: 0.55rem;
+    overflow: hidden;
+}
+
+.vault-strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.vault-strength-fill[data-strength="0"] { width: 0%; background: transparent; }
+.vault-strength-fill[data-strength="1"] { width: 25%; background: #ef4444; }
+.vault-strength-fill[data-strength="2"] { width: 50%; background: #f97316; }
+.vault-strength-fill[data-strength="3"] { width: 75%; background: #eab308; }
+.vault-strength-fill[data-strength="4"] { width: 100%; background: #22c55e; }
+
+.vault-strength-text {
+    font-size: 0.68rem;
+    margin-top: 0.3rem;
+    color: var(--va-label);
+    letter-spacing: 0.03em;
+    min-height: 1em;
+}
+
+/* --- Validation States --- */
+.vault-input.is-invalid {
+    border-color: #ef4444;
+}
+
+.vault-error {
+    color: #dc2626;
+    font-size: 0.76rem;
+    margin-top: 0.35rem;
+    line-height: 1.4;
+}
+
+.vault-help {
+    color: var(--va-label);
+    font-size: 0.72rem;
+    margin-top: 0.2rem;
+    line-height: 1.4;
+}
+
+/* --- Gold CTA Button (pill — matching homepage) --- */
+.vault-btn {
+    display: block;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background: var(--va-gold);
+    color: #111;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--va-radius-pill);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.2s ease;
+    margin-top: 1.6rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+.vault-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(1.06);
+    box-shadow: 0 6px 24px rgba(230, 170, 58, 0.35);
+}
+
+.vault-btn:active {
+    transform: scale(0.98);
+}
+
+/* Shimmer sweep */
+.vault-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.vault-btn:hover::after {
+    left: 120%;
+}
+
+/* --- Bottom link --- */
+.vault-link-row {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.84rem;
+    color: var(--va-label);
+}
+
+.vault-link-row a {
+    color: var(--va-gold-dark);
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.vault-link-row a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--va-gold);
+    transition: width 0.3s ease;
+}
+
+.vault-link-row a:hover {
+    color: var(--va-gold);
+}
+
+.vault-link-row a:hover::after {
+    width: 100%;
+}
+
+/* ===================================================
+   FIELD LAYOUT
+   =================================================== */
+.vault-field {
+    margin-bottom: 1.15rem;
+}
+
+.vault-row {
+    display: flex;
+    gap: 0.9rem;
+}
+
+.vault-row > .vault-field {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ===================================================
+   STAGGERED FADE-IN ANIMATIONS
+   =================================================== */
+.vault-stagger > * {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: vaultSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes vaultSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vault-stagger > *:nth-child(1)  { animation-delay: 0.05s; }
+.vault-stagger > *:nth-child(2)  { animation-delay: 0.10s; }
+.vault-stagger > *:nth-child(3)  { animation-delay: 0.15s; }
+.vault-stagger > *:nth-child(4)  { animation-delay: 0.20s; }
+.vault-stagger > *:nth-child(5)  { animation-delay: 0.25s; }
+.vault-stagger > *:nth-child(6)  { animation-delay: 0.30s; }
+.vault-stagger > *:nth-child(7)  { animation-delay: 0.35s; }
+.vault-stagger > *:nth-child(8)  { animation-delay: 0.40s; }
+.vault-stagger > *:nth-child(9)  { animation-delay: 0.45s; }
+.vault-stagger > *:nth-child(10) { animation-delay: 0.50s; }
+.vault-stagger > *:nth-child(11) { animation-delay: 0.55s; }
+
+/* ===================================================
+   RESPONSIVE
+   =================================================== */
+@media (max-width: 992px) {
+    .vault-auth {
+        flex-direction: column;
+    }
+
+    .vault-left {
+        flex: none;
+        max-width: 100%;
+        min-height: 42vh;
+        padding: 3.5rem 2rem 2.5rem;
+    }
+
+    .vault-left::after {
+        display: none;
+    }
+
+    .vault-right {
+        min-height: auto;
+        padding: 2rem 1.5rem 3rem;
+    }
+
+    .vault-headline {
+        font-size: 2rem;
+    }
+
+    .vault-back {
+        top: 1.2rem;
+        left: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .vault-left {
+        min-height: 36vh;
+        padding: 3rem 1.5rem 2rem;
+    }
+
+    .vault-form-card,
+    .vault-form-card.vault-card-wide {
+        padding: 2rem 1.4rem;
+        max-width: 100%;
+    }
+
+    .vault-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .vault-headline {
+        font-size: 1.55rem;
+    }
+
+    .vault-tagline {
+        font-size: 0.85rem;
+    }
+
+    .vault-form-title {
+        font-size: 1.35rem;
+    }
+}

@@ -4,6 +4,14 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // ---- Money Formatter ----
+    function novaFormatMoney(value) {
+        return parseFloat(value).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
     // ---- Theme Toggle ----
     const themeToggle = document.getElementById('themeToggle');
 
@@ -85,18 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const current = target * eased;
 
                 if (isDecimal) {
-                    el.textContent = current.toFixed(2);
+                    el.textContent = novaFormatMoney(current);
                 } else {
-                    el.textContent = Math.floor(current);
+                    el.textContent = Math.floor(current).toLocaleString('en-US');
                 }
 
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else {
                     if (isDecimal) {
-                        el.textContent = target.toFixed(2);
+                        el.textContent = novaFormatMoney(target);
                     } else {
-                        el.textContent = target;
+                        el.textContent = target.toLocaleString('en-US');
                     }
                 }
             };
@@ -178,6 +186,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (target) {
                 e.preventDefault();
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // ---- Format all displayed MAD amounts with thousand separators ----
+    (function formatAllMadAmounts() {
+        const pattern = /(-?\d+\.\d{2})\s*MAD/g;
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        const nodes = [];
+        let node;
+        while ((node = walker.nextNode())) {
+            if (/\d+\.\d{2}\s*MAD/.test(node.textContent)) {
+                nodes.push(node);
+            }
+        }
+        nodes.forEach(n => {
+            n.textContent = n.textContent.replace(pattern, (_, num) => {
+                return novaFormatMoney(parseFloat(num)) + ' MAD';
+            });
+        });
+    })();
+
+    // ---- Live amount input preview (formats as you type) ----
+    document.querySelectorAll('input[name="amount"]').forEach(function (input) {
+        const preview = document.createElement('div');
+        preview.style.cssText = 'font-size:1.5rem;font-weight:700;color:var(--nova-gold,#D4AF37);margin-top:6px;min-height:2rem;letter-spacing:0.02em;transition:opacity 0.2s;';
+        input.parentNode.insertBefore(preview, input.nextSibling);
+
+        input.addEventListener('input', function () {
+            const val = parseFloat(this.value);
+            if (!isNaN(val) && val > 0) {
+                preview.textContent = novaFormatMoney(val) + ' MAD';
+                preview.style.opacity = '1';
+            } else {
+                preview.textContent = '';
+                preview.style.opacity = '0';
             }
         });
     });

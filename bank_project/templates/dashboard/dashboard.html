@@ -108,6 +108,18 @@
                             <i class="bi bi-clock-history fs-4 text-gold"></i>
                             <span class="text-white fw-semibold">Historique</span>
                         </a>
+                        {% if has_active_card %}
+                        <a href="{% url 'card_payment' %}"
+                            class="card nova-card p-3 text-decoration-none quick-action d-flex align-items-center gap-3">
+                            <i class="bi bi-credit-card fs-4 text-gold"></i>
+                            <span class="text-white fw-semibold">Paiement Carte</span>
+                        </a>
+                        {% else %}
+                        <div class="card nova-card p-3 d-flex align-items-center gap-3 opacity-50" style="cursor:not-allowed;" title="Vous devez d'abord demander et activer une carte bancaire.">
+                            <i class="bi bi-credit-card fs-4 text-secondary"></i>
+                            <span class="text-secondary fw-semibold">Paiement Carte</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -137,13 +149,17 @@
                                     <span class="badge bg-success rounded-pill">Dépôt</span>
                                     {% elif tx.type == 'withdrawal' %}
                                     <span class="badge bg-danger rounded-pill">Retrait</span>
-                                    {% else %}
+                                    {% elif tx.type == 'card_payment' %}
+                                    <span class="badge bg-warning text-dark rounded-pill">Carte</span>
+                                    {% elif tx.type == 'transfer' %}
                                     <span class="badge bg-info rounded-pill">Virement</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary rounded-pill">{{ tx.type }}</span>
                                     {% endif %}
                                 </td>
                                 <td
-                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' %}amount-negative{% else %}amount-transfer{% endif %}">
-                                    {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' %}-{% endif %}{{ tx.amount|floatformat:2 }} MAD
+                                    class="fw-bold {% if tx.type == 'deposit' %}amount-positive{% elif tx.type == 'withdrawal' or tx.type == 'card_payment' %}amount-negative{% else %}amount-transfer{% endif %}">
+                                    {% if tx.type == 'deposit' %}+{% elif tx.type == 'withdrawal' or tx.type == 'card_payment' %}-{% endif %}{{ tx.amount|floatformat:2 }} MAD
                                 </td>
                                 <td><span class="badge bg-success rounded-pill">{{ tx.status }}</span></td>
                             </tr>

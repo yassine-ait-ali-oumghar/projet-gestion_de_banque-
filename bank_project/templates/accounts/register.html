@@ -1,61 +1,164 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Inscription | NovaBank{% endblock %}
 {% block content %}
-<div class="auth-page d-flex align-items-center justify-content-center">
-    <div class="container">
-        <div class="row justify-content-center align-items-center g-5">
-            <div class="col-lg-5 auth-illustration text-center">
-                <div class="illustration-wrapper p-4 rounded-4" style="background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,0,0,0.4)); border: 1px solid var(--nova-card-border); box-shadow: var(--nova-shadow);">
-                    <i class="bi bi-rocket-takeoff" style="font-size: 6rem; color: var(--nova-gold); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(212,175,55,0.4));"></i>
-                    <h3 class="fw-bold text-white mt-4">Commencez maintenant</h3>
-                    <p class="text-secondary mb-0">Ouvrez votre compte NovaBank en quelques secondes et accédez à tous nos services bancaires.</p>
-                </div>
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+
+<div class="vault-auth">
+    <!-- Back button -->
+    <a href="{% url 'home' %}" class="vault-back">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Retour
+    </a>
+
+    <!-- ===== Left Panel — Branding ===== -->
+    <div class="vault-left">
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <span class="vault-sparkle"></span>
+        <div class="vault-left-inner">
+            <div class="vault-emblem">
+                <img src="{% static 'images/nova bank logo.png' %}" alt="NovaBank" height="90">
             </div>
-            <div class="col-md-8 col-lg-6">
-                <div class="card nova-card p-4">
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <i class="bi bi-person-plus display-4 text-gold"></i>
-                            <h3 class="fw-bold mt-2">Créer un Compte</h3>
-                            <p class="text-secondary">Rejoignez NovaBank dès aujourd'hui</p>
-                        </div>
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="row g-3">
-                                {% for field in form %}
-                                <div class="col-md-{% if forloop.counter <= 2 %}6{% else %}12{% endif %}">
-                                    <label for="{{ field.id_for_label }}" class="form-label text-secondary">{{ field.label }}</label>
-                                    <div class="{% if 'password' in field.html_name %}password-wrapper{% endif %}">
-                                        <input type="{{ field.field.widget.input_type|default:'text' }}"
-                                               name="{{ field.html_name }}"
-                                               id="{{ field.id_for_label }}"
-                                               class="form-control nova-input {% if field.errors %}is-invalid{% endif %}"
-                                               value="{{ field.value|default:'' }}"
-                                               {% if field.field.required %}required{% endif %}>
-                                        {% if 'password' in field.html_name %}
-                                        <button type="button" class="password-toggle" style="border:0;outline:0;box-shadow:none;background:transparent;"><i class="bi bi-eye"></i></button>
-                                        {% endif %}
-                                    </div>
-                                    {% if field.errors %}
-                                    <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
-                                    {% if field.help_text %}
-                                    <small class="form-text" style="color:#555;">{{ field.help_text }}</small>
-                                    {% endif %}
-                                    {% endif %}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold mt-4">
-                                <i class="bi bi-check-circle me-2"></i>S'inscrire
-                            </button>
-                        </form>
-                        <p class="text-center text-secondary mt-4 mb-0">
-                            Déjà un compte ? <a href="{% url 'login' %}" class="text-gold fw-bold">Se connecter</a>
-                        </p>
-                    </div>
+            <div class="vault-divider"></div>
+            <h1 class="vault-headline">L'excellence<br><span class="gold">vous attend.</span></h1>
+            <p class="vault-tagline">Ouvrez votre compte NovaBank en quelques instants. Rejoignez une banque qui place votre confiance au cœur de chaque interaction.</p>
+        </div>
+    </div>
+
+    <!-- ===== Right Panel — Register Form ===== -->
+    <div class="vault-right">
+        <div class="vault-form-card vault-card-wide">
+            <div class="vault-stagger">
+                <div>
+                    <h2 class="vault-form-title">Créer un compte</h2>
+                    <p class="vault-form-subtitle">Rejoignez NovaBank dès aujourd'hui</p>
                 </div>
+
+                <form method="post" autocomplete="on">
+                    {% csrf_token %}
+
+                    <div class="vault-row">
+                        <div class="vault-field">
+                            <label for="{{ form.first_name.id_for_label }}" class="vault-label">Prénom</label>
+                            <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}"
+                                   class="vault-input {% if form.first_name.errors %}is-invalid{% endif %}"
+                                   value="{{ form.first_name.value|default:'' }}" placeholder="Jean"
+                                   autocomplete="given-name" required>
+                            {% if form.first_name.errors %}<div class="vault-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="vault-field">
+                            <label for="{{ form.last_name.id_for_label }}" class="vault-label">Nom</label>
+                            <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}"
+                                   class="vault-input {% if form.last_name.errors %}is-invalid{% endif %}"
+                                   value="{{ form.last_name.value|default:'' }}" placeholder="Dupont"
+                                   autocomplete="family-name" required>
+                            {% if form.last_name.errors %}<div class="vault-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="vault-field">
+                        <label for="{{ form.username.id_for_label }}" class="vault-label">Nom d'utilisateur</label>
+                        <input type="text" name="username" id="{{ form.username.id_for_label }}"
+                               class="vault-input {% if form.username.errors %}is-invalid{% endif %}"
+                               value="{{ form.username.value|default:'' }}" placeholder="jean.dupont"
+                               autocomplete="username" required>
+                        {% if form.username.errors %}<div class="vault-error">{{ form.username.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="vault-field">
+                        <label for="{{ form.email.id_for_label }}" class="vault-label">Adresse e-mail</label>
+                        <input type="email" name="email" id="{{ form.email.id_for_label }}"
+                               class="vault-input {% if form.email.errors %}is-invalid{% endif %}"
+                               value="{{ form.email.value|default:'' }}" placeholder="jean@exemple.com"
+                               autocomplete="email" required>
+                        {% if form.email.errors %}<div class="vault-error">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="vault-field">
+                        <label for="{{ form.password1.id_for_label }}" class="vault-label">Mot de passe</label>
+                        <div class="vault-pw-wrapper">
+                            <input type="password" name="password1" id="{{ form.password1.id_for_label }}"
+                                   class="vault-input {% if form.password1.errors %}is-invalid{% endif %}"
+                                   placeholder="••••••••" autocomplete="new-password" required>
+                            <button type="button" class="vault-pw-toggle" aria-label="Afficher le mot de passe">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="vault-strength-bar">
+                            <div class="vault-strength-fill" id="strengthFill" data-strength="0"></div>
+                        </div>
+                        <div class="vault-strength-text" id="strengthText"></div>
+                        {% if form.password1.errors %}
+                        <div class="vault-error">{{ form.password1.errors.0 }}</div>
+                        {% if form.password1.help_text %}<div class="vault-help">{{ form.password1.help_text|striptags }}</div>{% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="vault-field">
+                        <label for="{{ form.password2.id_for_label }}" class="vault-label">Confirmer le mot de passe</label>
+                        <div class="vault-pw-wrapper">
+                            <input type="password" name="password2" id="{{ form.password2.id_for_label }}"
+                                   class="vault-input {% if form.password2.errors %}is-invalid{% endif %}"
+                                   placeholder="••••••••" autocomplete="new-password" required>
+                            <button type="button" class="vault-pw-toggle" aria-label="Afficher le mot de passe">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}<div class="vault-error">{{ form.password2.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div>
+                        <button type="submit" class="vault-btn">S'inscrire</button>
+                    </div>
+                </form>
+
+                <p class="vault-link-row">
+                    Déjà un compte&nbsp;? <a href="{% url 'login' %}">Se connecter</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    /* Password toggle */
+    document.querySelectorAll('.vault-pw-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = this.closest('.vault-pw-wrapper').querySelector('input');
+            var icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        });
+    });
+
+    /* Password strength indicator */
+    var pw1 = document.getElementById('id_password1');
+    var fill = document.getElementById('strengthFill');
+    var txt  = document.getElementById('strengthText');
+    var labels = ['', 'Faible', 'Moyen', 'Bon', 'Excellent'];
+
+    if (pw1 && fill) {
+        pw1.addEventListener('input', function () {
+            var v = this.value;
+            var s = 0;
+            if (v.length >= 8)                           s++;
+            if (/[a-z]/.test(v) && /[A-Z]/.test(v))     s++;
+            if (/\d/.test(v))                            s++;
+            if (/[^a-zA-Z0-9]/.test(v))                  s++;
+            fill.setAttribute('data-strength', s);
+            if (txt) txt.textContent = v.length ? labels[s] : '';
+        });
+    }
+})();
+</script>
 {% endblock %}

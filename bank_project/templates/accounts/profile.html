@@ -27,6 +27,10 @@
                     </div>
                     <hr style="border-color:rgba(255,255,255,0.06);">
                     <small class="text-secondary"><i class="bi bi-calendar3 me-1"></i>Membre depuis {{ user.date_joined|date:"d/m/Y" }}</small>
+                    <hr style="border-color:rgba(255,255,255,0.06);">
+                    <a href="{% url 'change_password' %}" class="btn btn-outline-warning rounded-pill px-4 w-100">
+                        <i class="bi bi-shield-lock me-1"></i>Changer le mot de passe
+                    </a>
                 </div>
             </div>
             <!-- Edit Form -->

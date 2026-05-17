@@ -8,24 +8,28 @@
             <div class="col-md-6">
                 <div class="card nova-card p-4">
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" id="withdrawForm">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="account" class="form-label text-secondary">Compte</label>
                                 <select name="account" id="account" class="form-select nova-input" required>
                                     {% for acc in accounts %}
-                                    <option value="{{ acc.id }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD</option>
+                                    <option value="{{ acc.id }}" data-balance="{{ acc.balance }}" data-type="{{ acc.type }}">{{ acc.account_number }} — {{ acc.balance|floatformat:2 }} MAD {% if acc.type == 'Épargne' %}(Épargne){% endif %}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="mb-4">
                                 <label for="amount" class="form-label text-secondary">Montant (MAD)</label>
-                                <input type="number" step="0.01" min="50" max="3000" name="amount" id="amount" class="form-control nova-input" placeholder="0.00" required>
+                                <input type="number" step="0.01" min="20" max="10000" name="amount" id="amount" class="form-control nova-input" placeholder="0.00" required>
                                 <div class="form-text" style="color:#888; font-size:0.82rem;">
-                                    <i class="bi bi-info-circle me-1"></i>Min : <strong>50 MAD</strong> — Max : <strong>3 000 MAD</strong> par opération — Plafond journalier : <strong>10 000 MAD</strong>.
+                                    <i class="bi bi-info-circle me-1"></i>Min : <strong>20 MAD</strong> — Max : <strong>10 000 MAD</strong> par opération — Plafond journalier : <strong>20 000 MAD</strong>.
                                 </div>
+                                <div class="form-text" style="color:var(--nova-sapphire); font-size:0.82rem;">
+                                    <i class="bi bi-clock me-1"></i>Restant aujourd'hui : <strong>{{ daily_remaining|floatformat:2 }} MAD</strong>
+                                </div>
+                                <div id="amountError" class="text-danger small mt-1" style="display:none;"></div>
                             </div>
-                            <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-ruby);color:#fff;">
+                            <button type="button" id="withdrawBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:var(--nova-ruby);color:#fff;">
                                 <i class="bi bi-check-circle me-2"></i>Retirer
                             </button>
                         </form>
@@ -35,4 +39,69 @@
         </div>
     </div>
 </div>
+
+<!-- Confirmation Modal -->
+<div id="confirmOverlay" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2.5rem 2rem; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center;">
+        <div style="width:64px; height:64px; border-radius:50%; background:#fef2f2; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem;">
+            <i class="bi bi-exclamation-triangle-fill" style="font-size:2rem; color:#ef4444;"></i>
+        </div>
+        <h5 style="font-weight:700; color:#1a1a1a; margin-bottom:0.5rem;">Confirmer le retrait</h5>
+        <p style="color:#666; font-size:0.95rem;" id="confirmText"></p>
+        <div style="display:flex; gap:0.75rem; justify-content:center; margin-top:1.5rem;">
+            <button type="button" id="cancelBtn" style="padding:0.5rem 1.5rem; border-radius:50px; border:1px solid #ccc; background:#fff; color:#333; font-weight:600; cursor:pointer;">
+                <i class="bi bi-x-lg me-1"></i>Annuler
+            </button>
+            <button type="button" id="confirmBtn" style="padding:0.5rem 1.5rem; border-radius:50px; border:none; background:#ef4444; color:#fff; font-weight:600; cursor:pointer;">
+                <i class="bi bi-check-lg me-1"></i>Confirmer
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('withdrawForm');
+    const amountInput = document.getElementById('amount');
+    const amountError = document.getElementById('amountError');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const overlay = document.getElementById('confirmOverlay');
+    const confirmText = document.getElementById('confirmText');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    amountInput.addEventListener('input', function() {
+        const val = parseFloat(this.value);
+        const sel = document.getElementById('account').selectedOptions[0];
+        const balance = parseFloat(sel.dataset.balance);
+        if (isNaN(val) || val < 20) {
+            amountError.textContent = 'Le montant minimum est de 20 MAD.';
+            amountError.style.display = 'block';
+        } else if (val > 10000) {
+            amountError.textContent = 'Le montant maximum est de 10 000 MAD.';
+            amountError.style.display = 'block';
+        } else if (val > balance) {
+            amountError.textContent = 'Solde insuffisant (' + balance.toFixed(2) + ' MAD disponibles).';
+            amountError.style.display = 'block';
+        } else {
+            amountError.style.display = 'none';
+        }
+    });
+
+    withdrawBtn.addEventListener('click', function() {
+        const val = parseFloat(amountInput.value);
+        if (!form.checkValidity() || isNaN(val) || val < 20 || val > 10000) {
+            form.reportValidity();
+            return;
+        }
+        const accountText = document.getElementById('account').selectedOptions[0].text;
+        confirmText.innerHTML = 'Vous êtes sur le point de retirer <strong>' + val.toFixed(2) + ' MAD</strong> du compte <strong>' + accountText.split(' — ')[0] + '</strong>.';
+        overlay.style.display = 'flex';
+    });
+
+    cancelBtn.addEventListener('click', function() { overlay.style.display = 'none'; });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.style.display = 'none'; });
+    confirmBtn.addEventListener('click', function() { form.submit(); });
+});
+</script>
 {% endblock %}
